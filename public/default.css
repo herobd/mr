@@ -11,7 +11,7 @@ body {
 	color: #E7E7E7;
 }
 
-h1, h2, h3 {
+h1, h2, h3, h4 {
 	margin: 0;
 	padding: 0;
 	font-family: Georgia, "Times New Roman", Times, serif;
@@ -33,11 +33,26 @@ h3 {
 	background: #000000 url(images/img3.gif) repeat-x left bottom;
 }
 
+h4 {
+	padding: 20px 0 7px 0;
+	font-size: 14px;
+	background: #000000 url(images/thinBorder.gif) repeat-x left bottom;
+}
+
+td {
+	padding: 0 30px 0
+}
+
+#tdlink {
+	white-space: nowrap;
+}
+
 p {
 	margin-top: 0;
 	text-align: justify;
 	line-height: 160%;
 }
+
 
 a {
 	color: #33CCCC;
@@ -113,6 +128,11 @@ a:hover {
 
 #content {
 	width: 694px;
+	margin: 0 auto;
+}
+
+#contentonly {
+	width: 634px;
 	margin: 0 auto;
 }
 
