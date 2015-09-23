@@ -111,8 +111,7 @@ var SampleApp = function() {
             res.send(self.cache_get('projects.html') );
         };
         self.routes['/resume'] = function(req, res) {
-            res.setHeader('Content-Type', 'text/html');
-            res.send(self.cache_get('index.html') );
+            res.redirect('https://docs.google.com/document/d/1-4Wi_Y18SXbd5_utuRe-aexs75DaCvOZ1svzULopqiE/edit?usp=sharing');
         };
     };
 
