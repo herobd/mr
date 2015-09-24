@@ -2,12 +2,14 @@
 Design by Free CSS Templates
 http://www.freecsstemplates.org
 Released for free under a Creative Commons Attribution 2.5 License
+font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
 */
 
 body {
 	background: #000000;
-	font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-	font-size: 12px;
+	
+	font-family: Georgia, "Times New Roman", Times, serif;
+	font-size: 13px;
 	color: #E7E7E7;
 }
 
@@ -16,9 +18,13 @@ h1, h2, h3, h4 {
 	padding: 0;
 	font-family: Georgia, "Times New Roman", Times, serif;
 	color: #FFFFFF;
+	min-width: 100%;
 }
 
-h1 { font-size: 36px; }
+h1 { 
+    font-size: 36px;
+     min-width:400px   
+}
 
 h2 {
 	margin-bottom: 10px;
@@ -45,6 +51,7 @@ td {
 
 #tdlink {
 	white-space: nowrap;
+	font-size: 14px;
 }
 
 p {
