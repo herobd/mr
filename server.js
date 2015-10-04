@@ -113,6 +113,9 @@ var SampleApp = function() {
         self.routes['/resume'] = function(req, res) {
             res.redirect('https://docs.google.com/document/d/1-4Wi_Y18SXbd5_utuRe-aexs75DaCvOZ1svzULopqiE/edit?usp=sharing');
         };
+        self.routes['/pms1stward'] = function(req, res) {
+            res.redirect('https://docs.google.com/forms/d/1OjXD_ubMFUtBJROOltXHg6Gx9X5nS1eNssF-089QPCA/viewform');
+        };
     };
 
 
