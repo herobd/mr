@@ -459,11 +459,9 @@ function handleInput(camera,car,ghost,elapsed) {
         car.position = car.position.translate([0.01,0,0]);
     }
     if (currentlyPressedKeys[38]) {//up arrow
-        car.turnLeft();
         car.position = car.position.translate([0,0,0.01]);
     }
     if (currentlyPressedKeys[40]) {//down arrow
-        car.turnRight();
         car.position = car.position.translate([0,0,-0.01]);
         
     }
@@ -647,10 +645,10 @@ function webGLStart() {
     camera = {
         fieldOfView: 45,
         lookingAt: new Vec([0,0.6,0]),
-        lookingFrom: new Vec([0,0.6,0.5]),
+        lookingFrom: new Vec([0,0.6,0.3]),
         up: new Vec([0,1,0]),
         moveSpeed: 5,
-        rotSpeed: degToRad(0.3)
+        rotSpeed: degToRad(0.7)
     }
     
     tick = function() {

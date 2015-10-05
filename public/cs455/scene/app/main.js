@@ -419,17 +419,17 @@ function handleInput(camera,car,ghost,elapsed) {
 	        }
 	    }*/
 	
-	    if (gamepad.buttons[14].pressed || gamepad.buttons[14].value !== 0) {
+	    if (gamepad.buttons[14] !== undefined && (gamepad.buttons[14].pressed || gamepad.buttons[14].value !== 0)) {
 	        car.turnLeft();
 	    }
-	    if (gamepad.buttons[15].pressed || gamepad.buttons[15].value !== 0) {
+	    if (gamepad.buttons[15] !== undefined && (gamepad.buttons[15].pressed || gamepad.buttons[15].value !== 0)) {
 	        car.turnRight();
 	    }
 	    
-	    if (gamepad.buttons[12].pressed || gamepad.buttons[12].value !== 0) {
+	    if (gamepad.buttons[12] !== undefined && (gamepad.buttons[12].pressed || gamepad.buttons[12].value !== 0)) {
 	        ghost.position = ghost.position.translate([0,0.01,0]);
 	    }
-	    if (gamepad.buttons[13].pressed || gamepad.buttons[13].value !== 0) {
+	    if (gamepad.buttons[13] !== undefined && (gamepad.buttons[13].pressed || gamepad.buttons[13].value !== 0)) {
 	        ghost.position = ghost.position.translate([0,-0.01,0]);
 	    }
     } else {
@@ -459,11 +459,9 @@ function handleInput(camera,car,ghost,elapsed) {
         car.position = car.position.translate([0.01,0,0]);
     }
     if (currentlyPressedKeys[38]) {//up arrow
-        car.turnLeft();
         car.position = car.position.translate([0,0,0.01]);
     }
     if (currentlyPressedKeys[40]) {//down arrow
-        car.turnRight();
         car.position = car.position.translate([0,0,-0.01]);
         
     }

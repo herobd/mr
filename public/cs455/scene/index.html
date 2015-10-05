@@ -4,6 +4,8 @@
 <title>CS455 Project 3</title>
 <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
 
+<link href="../../default.css" rel="stylesheet" type="text/css" />
+
 <script type="text/javascript" src="lib/glMatrix-0.9.5.min.js"></script>
 
 
@@ -37,27 +39,38 @@
 
 
 <body>
-    <h>Brian's CS455 project</h>
-    <br/>
+    <div id="header">
+  <h1>the website of Brian Davis</h1>
+  <h2 >Menu</h2>
+  <ul >
+    <li class="first"><a href="/" accesskey="1">Home</a></li>
+    <li><a href="/projects" accesskey="2">Projects</a></li>
+    <li><a href="/resume" accesskey="3">Resume</a></li>
+  </ul>
+	</div>
+    <div id="content">
+	    <p>Scene viewing project for CS455</p>
+	    <p>Allows for free camera movement with a matrix class written by me.</p>
+        <canvas id="it-is-a-canvas" style="border: none;" width="500" height="500">
+            <script data-main="app" src="lib/require.js"></script>
+        </canvas>
 
-    <canvas id="it-is-a-canvas" style="border: none;" width="500" height="500">
-        <script data-main="app" src="lib/require.js"></script>
-    </canvas>
-
-    <div id="cind">No controller detected. Press any button.</div>
-    <br/>
-    <br/>
-    <div id="instructions">
-        Use a gamepad with normal FPS controls to move around the scene. Use the directional pad to turn the car wheels and raise and lower the vengeful parking ghost.
+        <div id="cind">No controller detected. Press any button.</div>
         <br/>
-        Additional keyboard controls:<br/>
-        WASD to move around<br/>
-        Q&E to rotate camera<br/>
-        R&F to move vertically<br/>
-        1&2 to turn car wheels<br/>
-        3&4 to lower and raise the ghost<br/>
-        Arrow keys to move car (according to world cords.)
-        
+        <br/>
+        <div id="instructions">
+            Use a gamepad (XBox tested, others may work) with normal FPS controls to move around the scene. Use the directional pad to turn the car wheels and raise and lower the vengeful parking ghost.
+            <br/>
+            <br/>
+            Additional keyboard controls:<br/>
+            WASD to move around<br/>
+            Q&E to rotate camera<br/>
+            R&F to move vertically<br/>
+            1&2 to turn car wheels<br/>
+            3&4 to lower and raise the ghost<br/>
+            Arrow keys to move car (according to world cords.)
+            
+        </div>
     </div>
 </body>
 

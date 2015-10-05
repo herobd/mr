@@ -43,9 +43,6 @@ h4 {
 	padding: 20px 0 7px 0;
 	font-size: 14px;
 	background: #000000 url(images/thinBorder.gif) repeat-x left bottom;
-	height: 100%;
-	float: left;
-	min-width: 448px;
 }
 
 td {
