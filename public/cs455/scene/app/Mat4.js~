@@ -1,0 +1,41 @@
+define(function () {
+    function Mat4() {
+        this.values = [ [1, 0, 0, 0],
+                        [0, 1, 0, 0],
+                        [0, 0, 1, 0],
+                        [0, 0, 0, 1] ];
+    
+    }
+    Mat4.prototype.get = function(row,col) {
+            return this.values[row][col];
+        };
+    Mat4.prototype.multiply = function(otherMat) {
+            var toRet = new Mat4();
+            for (var row=0; row<4; row++)
+                for (var col=0; col<4; col++) {
+                    var val=0;
+                    for (var i=0; i<4; i++) {
+                        val += this.get(row,i)*otherMat.get(i,col);
+                    }
+                    toRet.values[row][col]=val;
+                }
+            
+        };
+
+    Mat4.prototype.perspective = function(fieldOfView,lookAt,lookFrom,up) {
+        var N = Vec(lookFrom).minus(Vec(lookAt));
+        var U = Vec(up).cross(N);
+        var V = N.cross(U);
+	
+        var M = new Mat4();
+        M.values =  [ [U[0], U[1], U[2], 0],
+		        [V[0], V[1], V[2], 0],
+		        [N[0], N[1], N[2], 0],
+		        [0,    0,    0,    1] ];
+	
+        //is this the right order?
+        return  (new Mat4()).translate(-lookAt[0],-lookAt[1],-lookAt[2]).multiply(M);
+    };
+    
+    return Mat4.prototype.constructor;
+});
