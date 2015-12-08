@@ -1,0 +1,123 @@
+<html>
+
+<head>
+<title>CS455 Game</title>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+<script src="webgl-debug.js"></script>
+<script type="text/javascript" src="lib/glMatrix-0.9.5.min.js"></script>
+
+
+<script id="shader-fs" type="x-shader/x-fragment">
+    precision mediump float;
+    varying vec2 vTextureCoord;
+    varying vec3 vLightWeighting;
+    uniform sampler2D uSampler;
+    void main(void) {
+        vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+        gl_FragColor = vec4(textureColor.rgb * vLightWeighting, textureColor.a);
+    }
+
+</script>
+
+<script id="shader-vs" type="x-shader/x-vertex">
+    attribute vec3 aVertexPosition;
+    attribute vec3 aVertexNormal;
+    attribute vec2 aTextureCoord;
+    uniform mat4 uMVMatrix;
+    uniform mat4 uPMatrix;
+    uniform mat3 uNMatrix;
+    
+    uniform vec3 uAmbientColor;
+    uniform vec3 uLightingDirection;
+    uniform vec3 uDirectionalColor;
+    
+    varying vec2 vTextureCoord;
+    varying vec3 vLightWeighting;
+    void main(void) {
+        gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+        vTextureCoord = aTextureCoord;
+        //vec3 test_uNMatrix = vec3(0,1,0);
+        vec3 transformedNormal = uNMatrix * aVertexNormal;
+        
+        float directionalLightWeighting = max(dot(transformedNormal, uLightingDirection), 0.0);
+        vLightWeighting = uAmbientColor + uDirectionalColor * directionalLightWeighting;
+        //vLightWeighting = vLightWeighting * max(0.0,min(1.0,(5.0-gl_Position[2]/gl_Position[3])/(5.0)));
+    }
+
+</script>
+
+<script id="shader-fs-flat" type="x-shader/x-fragment">
+    precision mediump float;
+    varying vec2 vTextureCoord;
+    uniform sampler2D uSampler;
+    void main(void) {
+        vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+        gl_FragColor = vec4(textureColor.rgb, textureColor.a);
+    }
+
+</script>
+
+<script id="shader-vs-flat" type="x-shader/x-vertex">
+    attribute vec3 aVertexPosition;
+    attribute vec2 aTextureCoord;
+    
+    void main(void) {
+        gl_Position = vec4(aVertexPosition, 1.0);
+        vTextureCoord = aTextureCoord;
+        
+    }
+
+</script>
+
+<style>
+.view {
+    position: relative;
+}
+#flat {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    z-index: 10;
+}
+#it-is-a-canvas {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    z-index: 0;
+}
+
+#cind {
+    position: absolute;
+    left: 0px;
+    top: 510px;
+    z-index: 0;
+}
+</style>
+
+</head>
+
+
+<body>
+
+    <div id='view'>
+        <canvas id="it-is-a-canvas" style="border: none;" width="500" height="500">
+            <script data-main="app" src="lib/require.js"></script>
+        </canvas>
+        <canvas id="flat" width="500" height="500"></canvas>
+    </div>
+    
+    <div id="cind">No controller detected. Press any button.</div>
+    <br/>
+    <br/>
+    <div id="instructions">
+        Use a gamepad with normal FPS controls to move around the scene. Use the directional pad to turn the car, buttons [west or 1] and [south or 2] to move forwards and backwards. (Tested with Xbox and PS controllers)
+        <br/>
+        Additional keyboard controls:<br/>
+        WASD to move around<br/>
+        Q&E to rotate camera<br/>
+        R&F to move vertically
+        
+    </div>
+</body>
+
+</html>
