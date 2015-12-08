@@ -535,7 +535,12 @@ function drawMap() {
     else {
 		myGL.drawUI(gameState.mapImageBUI,gameState.mapX,gameState.mapY,gameState.mapSize,gameState.mapSize);
 	}
-    myGL.drawText("Level: "+(gameState.currentLevel+1));
+	if (gameState.currentLevel>0)
+        myGL.drawText("Level: "+(gameState.currentLevel),430, 20);
+    else {
+        myGL.drawText("Welcome to"),380, 20);
+        myGL.drawText('"Haunted"'),400, 40);
+    }
     //myGL.drawText("mouse: "+(controller.mouseX)+', '+(controller.mouseX));
 }
     

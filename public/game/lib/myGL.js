@@ -315,12 +315,12 @@ function validateNoneOfTheArgsAreUndefined(functionName, args) {
             this.flat.drawImage(image,x,y,width,height);
             //this.flat.fillText('Hello World!!!!!!!!!!', 200, 200);
         },
-        drawText : function(text) {
+        drawText : function(text,x,y) {
             this.flat.font = "20px monospace";
             this.flat.textAlign = "center";
             this.flat.textBaseline = "middle";
             this.flat.fillStyle = "white";
-            this.flat.fillText(text, 430, 20);
+            this.flat.fillText(text, x,y);
         },
         
         clearScene : function () {
