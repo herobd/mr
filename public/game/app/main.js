@@ -66,7 +66,7 @@ gameState.dying = -1;
 gameState.dying_time = 50.0;
 gameState.changingLevel = -1;
 gameState.changingLevel_time = 50.0;
-gameState.invincible=true;
+gameState.invincible=false;
 gameState.sceneElements = {};
 gameState.solidObjects = {};
 gameState.collidableObjects = [];
@@ -538,8 +538,8 @@ function drawMap() {
 	if (gameState.currentLevel>0)
         myGL.drawText("Level: "+(gameState.currentLevel),430, 20);
     else {
-        myGL.drawText("Welcome to"),380, 20);
-        myGL.drawText('"Haunted"'),400, 40);
+        myGL.drawText("Welcome to",380, 20);
+        myGL.drawText('"Haunted"',400, 70);
     }
     //myGL.drawText("mouse: "+(controller.mouseX)+', '+(controller.mouseX));
 }

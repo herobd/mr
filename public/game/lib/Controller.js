@@ -27,8 +27,8 @@ define( function() {
         
         windowWidth : 500,
         windowHeight : 500,
-        mouseX : 0,
-        mouseY : 0,
+        mouseX : -9999,
+        mouseY : -9999,
         handleMouseMove : function (event) {
             this.mouseX = event.clientX;
             this.mouseY = event.clientY;
