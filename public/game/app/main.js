@@ -26,7 +26,7 @@ var assets={
     mapBlank : 'assests/mapBlank.png',
     mapGrave : 'assests/graveIcon.png',
     mapGhost : 'assests/ghostIcon.png',
-    levels : ['0.level','2.level','rand.level']
+    levels : ['0.level','1.level','2.level','rand.level']
 }
 
 assets.preload = function() {
@@ -73,7 +73,7 @@ gameState.collidableObjects = [];
 gameState.levels = assets.levels;
 gameState.currentLevel = -1;
 gameState.currentLevelFile = 'none';
-
+gameState.ghostsCount = 0;
 
 gameState.camera = new SolidObject(null,null,0.3,1,new Vec([0,0,0.3]));
     
@@ -362,8 +362,10 @@ gameState.addGrave = function(name,location,inFront,trips) {
 				null==tripObj.collisionCheck(gameState.camera,[0,0,3.5],false) &&
 				null==tripObj.collisionCheck(gameState.camera,[0,0,-3.5],false))
 				this.collidableObjects.push(tripObj);
-			else
+			else {
 				this.solidObjects[name]=null;
+				console.log('trip too close to start.');
+			}
 			
 		}          
 }
@@ -391,6 +393,22 @@ gameState.loadLevel = function(loc) {
             myself.collidableObjects = [];
             myself.dying = -1;
             myself.changingLevel=-1;
+            
+            for (var name in loaded) {
+                if (name==="StartingLocation") 
+                    myself.startingLoc= new Vec(loaded[name]);
+                else if (name==="StartingLooking") 
+                    myself.startingLook= new Vec(loaded[name]);
+                
+            }
+            
+            myself.startingLoc[1]=1;
+            myself.startingLook[1]=1;
+            myself.startingLook = myself.startingLook.minus(myself.startingLoc).normalize().scale(0.01).plus(myself.startingLoc);
+            myself.camera.lookingAt= new Vec(myself.startingLook);
+            myself.camera.lookingFrom= new Vec(myself.startingLoc);
+            myself.camera.position = (new Mat4()).translate([myself.startingLoc[0],0,myself.startingLoc[2]]);
+            
             for (var name in loaded) {
                 if (loaded[name].type=="Floor") 
                     myself.addFloor(name,loaded[name].scale,loaded[name].location);
@@ -402,23 +420,14 @@ gameState.loadLevel = function(loc) {
                     myself.addWall(name,loaded[name].rotationAngle,loaded[name].scale,loaded[name].location);
                 else if (loaded[name].type=="Grave") 
                     myself.addGrave(name,loaded[name].location,loaded[name].inFront,loaded[name].trips);
-                else if (name==="StartingLocation") 
-                    myself.startingLoc= new Vec(loaded[name]);
-                else if (name==="StartingLooking") 
-                    myself.startingLook= new Vec(loaded[name]);
                 
             }
-            myself.startingLoc[1]=1;
-            myself.startingLook[1]=1;
-            myself.startingLook = myself.startingLook.minus(myself.startingLoc).normalize().scale(0.01).plus(myself.startingLoc);
-            myself.camera.lookingAt= new Vec(myself.startingLook);
-            myself.camera.lookingFrom= new Vec(myself.startingLoc);
-            myself.camera.position = (new Mat4()).translate([myself.startingLoc[0],0,myself.startingLoc[2]]);
+            
             
             if (loc == 'rand.level') {
 				myself.makeGoal();
 				myself.makeGraves(myself.currentLevel/1000.0);
-				myself.makeTrees(myself.currentLevel/50.0);
+				myself.makeTrees(Math.min(0.5,myself.currentLevel/50.0));
 			}
           } else {
             console.error(xhr.statusText);
@@ -503,14 +512,14 @@ function drawMap() {
                     }
                     var relPos = obj.position.posVec().minus(gameState.playerLocation());
                     var dist=relPos.mag();
-                    relPos = relPos.normalize().scale((Math.min(14,dist)/15)*gameState.mapSize/2);
+                    relPos = relPos.normalize().scale((Math.min(14,dist)/15)*gameState.mapSize/2.0);
                     var proX = -relPos.dot(orth);
                     var proY = relPos.dot(d);
                     
                     myGL.drawUI(gameState.graveImageUI,
-                                gameState.mapX+proX+gameState.mapSize/2,
-                                gameState.mapY+proY+gameState.mapSize/2,
-                                gameState.mapSize/6,gameState.mapSize/6);
+                                gameState.mapX+proX+gameState.mapSize/2.0 - gameState.mapSize/(6.0*2),
+                                gameState.mapY+proY+gameState.mapSize/2.0 - gameState.mapSize/(6.0*2),
+                                gameState.mapSize/6.0,gameState.mapSize/6.0);
                 }
             }
         }
@@ -521,27 +530,38 @@ function drawMap() {
             if (obj instanceof Ghost) {
                 var relPos = obj.position.posVec().minus(gameState.playerLocation());
                 var dist=relPos.mag();
-                relPos = relPos.normalize().scale((Math.min(14,dist)/15)*gameState.mapSize/2);
+                relPos = relPos.normalize().scale((Math.min(14,dist)/15)*gameState.mapSize/2.0);
                 var proX = -relPos.dot(orth);
                 var proY = relPos.dot(d);
-                
+                //console.log(gameState.mapX+proX+gameState.mapSize/2.0 - gameState.mapSize/(6.0*2))
                 myGL.drawUI(gameState.ghostImageUI,
-                            gameState.mapX+proX+gameState.mapSize/2,
-                            gameState.mapY+proY+gameState.mapSize/2,
-                            gameState.mapSize/6,gameState.mapSize/6);
+                            gameState.mapX+proX+gameState.mapSize/2.0 - gameState.mapSize/(6.0*2),
+                            gameState.mapY+proY+gameState.mapSize/2.0 - gameState.mapSize/(6.0*2),
+                            gameState.mapSize/6.0,gameState.mapSize/6.0);
             }
         }
     }
     else {
 		myGL.drawUI(gameState.mapImageBUI,gameState.mapX,gameState.mapY,gameState.mapSize,gameState.mapSize);
 	}
-	if (gameState.currentLevel>0)
+	if (gameState.currentLevel>1) {
         myGL.drawText("Level: "+(gameState.currentLevel),430, 20);
-    else {
+        myGL.drawText("Ghosts banished: "+(gameState.ghostsCount),360, 50);
+    }
+    else if (gameState.currentLevel==0) {
         myGL.drawText("Welcome to",380, 20);
         myGL.drawText('"Haunted"',400, 70);
+    } else {
+        myGL.drawText("Level: "+(gameState.currentLevel),430, 20);
+        if (gameState.solidObjects['grave']!=undefined && gameState.solidObjects['grave'].state==1)
+            myGL.drawText('touch grave to banish ghost',300, 80);
     }
     //myGL.drawText("mouse: "+(controller.mouseX)+', '+(controller.mouseX));
+    //console.log(gameState.mapX+0+gameState.mapSize/2.0 - gameState.mapSize/(6.0*1))
+    //myGL.drawUI(gameState.graveImageUI,
+     //                           Math.floor(gameState.mapX+0+gameState.mapSize/2.0 - gameState.mapSize/(6.0*2)),
+      //                          Math.floor(gameState.mapY+0+gameState.mapSize/2.0 - gameState.mapSize/(6.0*2)),
+        //                        Math.floor(gameState.mapSize/6.0,gameState.mapSize/6.0));
 }
     
 
@@ -747,7 +767,7 @@ function webGLStart() {
             gameState.saveLevel();
     });
     controller.keyboardUp[79].push( function(elapsed) {//o
-            gameState.loadLevel('levels/test.level');
+            gameState.restartLevel();
     });
     controller.keyboardUp[78].push( function(elapsed) {//n
             gameState.nextLevel();

@@ -586,10 +586,26 @@ function Grave(gameState,inFront,graveImg,graveOnImg,graveObj,ghostImg,ghostObj,
     this.onTexture = this.texture;
     this.initTexture(graveImg);
     this.offTexture = this.texture;
+    this.touch = new Trip(this,ghostImg,ghostObj,1.1,positionMatrix);
+    this.gameStateRef.collidableObjects.push(this.touch);
 }
 Grave.prototype = Object.create(SolidObject.prototype);
 Grave.prototype.constructor = Grave;
 Grave.prototype.seen = function(calling) {
+    if (calling == this.touch) {
+        console.log('trip')
+        this.activate();
+        for (var i=0; i<this.gameStateRef.collidableObjects.length; i++) {
+            //console.log(obj.spawner);
+            if (this.gameStateRef.collidableObjects[i]===calling) {
+                this.gameStateRef.collidableObjects.splice(i,1);
+                break;
+            }
+        }
+        return;
+    } 
+    
+    
     if (this.state ==0) {
         this.state=1;
         var moveSpeed;
@@ -599,6 +615,10 @@ Grave.prototype.seen = function(calling) {
         if (this.inFront) {
             moveSpeed=0.0025;
             location = (this.gameStateRef.playerLocation().minus(this.position.posVec())).scale(0.4).plus(thisPos);
+            if (this.gameStateRef.currentLevel==1) {
+                moveSpeed=0.001;
+                location = (this.gameStateRef.playerLocation().minus(this.position.posVec())).scale(0.2).plus(thisPos);
+            }
         }
         else {
             moveSpeed=0.005;
@@ -627,16 +647,19 @@ Grave.prototype.activate = function() {
             //console.log(obj.spawner);
             if (this.gameStateRef.collidableObjects[i].spawner===this) {
                 this.gameStateRef.collidableObjects.splice(i,1);
+                this.gameStateRef.ghostsCount++;
                 break;
             }
         }
         this.texture=this.offTexture;
         var snd = new Audio(this.soundDown); // buffers automatically when created
         snd.play();
+        
     }
 }
 Grave.prototype.setTripLoc = function(trip) {
-    this.trips.push( trip );
+    if (trip != this.touch)
+        this.trips.push( trip );
 }
 Grave.prototype.getTrips = function() {
     var ret = [];
