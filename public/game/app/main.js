@@ -26,6 +26,8 @@ var assets={
     mapBlank : 'assests/mapBlank.png',
     mapGrave : 'assests/graveIcon.png',
     mapGhost : 'assests/ghostIcon.png',
+    song : 'assests/Day of Chaos.mp3',
+    songFast : 'assests/Exhilarate.mp3',
     levels : ['0.level','1.level','2.level','rand.level']
 }
 
@@ -42,6 +44,9 @@ assets.preload = function() {
     this.sndUp = new Audio(this.ghostSoundUp); // buffers automatically when created
     this.sndUp.playbackRate=2.2;
     this.sndGoal = new Audio(this.goalSound); // buffers automatically when created
+    
+    this.sndBg = new Audio(this.song);
+    this.sndBgFast = new Audio(this.songFast);
 }
 
 //var logger=200;
@@ -104,7 +109,24 @@ gameState.graveImageUI.src = assets.mapGrave;
 gameState.ghostImageUI=new Image();
 gameState.ghostImageUI.src = assets.mapGhost;
 
-
+gameState.sing =function(){
+    var count=0;
+    for (var ele in this.solidObjects) {
+        if (this.solidObjects.hasOwnProperty(ele)) {
+            var obj = this.solidObjects[ele];
+            if (obj instanceof Grave) {
+                if (obj.state==1) count++;
+            }
+        }
+    }
+    if (count>4) {
+        assets.sndBg.pause();
+        assets.sndBgFast.play();
+    } else {
+        assets.sndBgFast.pause();
+        assets.sndBg.play();
+    }
+}
     
 
 gameState.store = function(sceneElements,world) {
@@ -436,6 +458,7 @@ gameState.loadLevel = function(loc) {
 				myself.makeGraves(myself.currentLevel/1000.0);
 				myself.makeTrees(Math.min(0.5,myself.currentLevel/50.0));
 			}
+			gameState.sing();
           } else {
             console.error(xhr.statusText);
           }
@@ -652,6 +675,7 @@ function webGLStart() {
 
     myGL.initGL(document.getElementById("it-is-a-canvas"),document.getElementById("flat"));
     gameState.nextLevel();
+    
     
     function movement(elapsed,stick1x,stick1y,stick2x,stick2y) {
         var d = gameState.camera.lookingFrom.minus(gameState.camera.lookingAt);

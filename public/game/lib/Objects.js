@@ -635,7 +635,7 @@ Grave.prototype.seen = function(calling) {
             }
         }
         this.texture=this.onTexture;
-        
+        this.gameStateRef.sing();
         this.sndUp.currentTime=0;
         this.sndUp.play();
     }
@@ -652,7 +652,7 @@ Grave.prototype.activate = function() {
             }
         }
         this.texture=this.offTexture;
-        
+        this.gameStateRef.sing();
         this.sndDown.currentTime=0;
         this.sndDown.play();
         
