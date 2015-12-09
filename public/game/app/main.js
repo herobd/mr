@@ -475,10 +475,12 @@ gameState.restartLevel = function() {
 }
 
 gameState.nextLevel = function() {
+    this.ghostsCount+=this.ghostsCountThisLevel;
+    this.ghostsCountThisLevel=0;
 	if (++this.currentLevel < this.levels.length)
 		this.currentLevelFile = this.levels[this.currentLevel]
     this.changingLevel=0;
-    this.ghostsCount+=this.ghostsCountThisLevel;
+    
     //this.loadLevel(this.currentLevelFile);
 }
 
@@ -522,6 +524,8 @@ function drawTexturedObjects(objectsToDraw,perspectiveMat) {
 }
 
 function drawMap() {
+    if (gameState.changingLevel>=0 || gameState.dying>=0)
+        return;
     var drawing=false;
     var d;
     var orth;
