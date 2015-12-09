@@ -716,14 +716,14 @@ function webGLStart() {
 	});
 	
 	controller.keyboard[82].push( function(elapsed,pressed) {//r
-	    if (pressed) {
+	    if (pressed && gameState.invincible) {
             gameState.camera.lookingAt[1] += (gameState.camera.moveSpeed * elapsed) / 1000.0;
 	        gameState.camera.lookingFrom[1] += (gameState.camera.moveSpeed * elapsed) / 1000.0;
 	    }
 	});
 	
 	controller.keyboard[70].push( function(elapsed,pressed) {//f
-	    if (pressed) {
+	    if (pressed  && gameState.invincible) {
             gameState.camera.lookingAt[1] += (-1* gameState.camera.moveSpeed * elapsed) / 1000.0;
 	        gameState.camera.lookingFrom[1] += (-1* gameState.camera.moveSpeed * elapsed) / 1000.0;
 	    }
@@ -755,13 +755,15 @@ function webGLStart() {
     
     /////debug
     controller.keyboardUp[55].push( function(elapsed,pressed) {//7
-        gameState.removeNearestTree();
+        if (gameState.invincible)
+            gameState.removeNearestTree();
     });
     controller.keyboardUp[56].push( function(elapsed,pressed) {//8
 		gameState.invincible= !gameState.invincible;
     });
     controller.keyboardUp[57].push( function(elapsed) {//9
-		gameState.removeNearestGrave();
+        if (gameState.invincible)
+		    gameState.removeNearestGrave();
     });
     controller.keyboardUp[80].push( function(elapsed) {//p
             gameState.saveLevel();
@@ -770,6 +772,7 @@ function webGLStart() {
             gameState.restartLevel();
     });
     controller.keyboardUp[78].push( function(elapsed) {//n
+        if (gameState.invincible)
             gameState.nextLevel();
     });
     
@@ -810,7 +813,7 @@ function webGLStart() {
         gameState.sceneElements['axis2']=(axis2);
     });
     
-    var testo = new GenericObject(assets.wallImg,assets.wallObj,1,[0,0,0.5]);
+    
     
     tick = function() {
         requestAnimFrame(tick);
