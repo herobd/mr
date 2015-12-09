@@ -713,8 +713,11 @@ function webGLStart() {
         
         
         //rotation (aiming)
+        var vertOff = gameState.camera.lookingAt[1]-gameState.camera.lookingFrom[1];
+        var rubberband=0.00001*Math.sign(vertOff);
+        if (Math.abs(vertOff)<0.001) rubberband=0;
         var mHorz = elapsed*dmag*Math.sin(gameState.camera.rotSpeed*stick2x)/7.0;
-        var mVert = elapsed*dmag*Math.sin(gameState.camera.rotSpeed*stick2y)/7.0;
+        var mVert = elapsed*(dmag*Math.sin(gameState.camera.rotSpeed*stick2y)/7.0 - rubberband);
         var dirHorz = horzViewAxis.normalize().scale(mHorz);
         var dirVert = vertViewAxis.normalize().scale(mVert);
         gameState.camera.lookingAt = gameState.camera.lookingAt.plus(dirHorz.plus(dirVert));
