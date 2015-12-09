@@ -16,7 +16,7 @@ var assets={
     ghostImg : 'assests/cloth_text.png',
     ghostObj : 'assests/wraith_text.obj',
     ghostSoundUp : 'assests/Monster Growl-SoundBible.com-344645592.mp3',
-    ghostSoundDown : 'assests/Zombie Moan-SoundBible.com-565291980.wav',
+    ghostSoundDown : 'assests/Zombie Moan-SoundBible.com-565291980.wav#t=0.1',
     tripImg : 'assests/violetCrayon.png',
     tripObj : 'assests/circle.obj',
     goalImg : 'assests/marble_texture.jpg',
@@ -74,6 +74,7 @@ gameState.levels = assets.levels;
 gameState.currentLevel = -1;
 gameState.currentLevelFile = 'none';
 gameState.ghostsCount = 0;
+gameState.ghostsCountThisLevel = 0;
 
 gameState.camera = new SolidObject(null,null,0.3,1,new Vec([0,0,0.3]));
     
@@ -393,6 +394,7 @@ gameState.loadLevel = function(loc) {
             myself.collidableObjects = [];
             myself.dying = -1;
             myself.changingLevel=-1;
+            myself.ghostsCountThisLevel=0;
             
             for (var name in loaded) {
                 if (name==="StartingLocation") 
@@ -448,6 +450,7 @@ gameState.nextLevel = function() {
 	if (++this.currentLevel < this.levels.length)
 		this.currentLevelFile = this.levels[this.currentLevel]
     this.changingLevel=0;
+    this.ghostsCount+=this.ghostsCountThisLevel;
     //this.loadLevel(this.currentLevelFile);
 }
 
@@ -546,7 +549,7 @@ function drawMap() {
 	}
 	if (gameState.currentLevel>1) {
         myGL.drawText("Level: "+(gameState.currentLevel),430, 20);
-        myGL.drawText("Ghosts banished: "+(gameState.ghostsCount),360, 50);
+        myGL.drawText("Ghosts banished: "+(gameState.ghostsCount+gameState.ghostsCountThisLevel),360, 50);
     }
     else if (gameState.currentLevel==0) {
         myGL.drawText("Welcome to",380, 20);

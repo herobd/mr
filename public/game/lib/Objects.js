@@ -588,6 +588,7 @@ function Grave(gameState,inFront,graveImg,graveOnImg,graveObj,ghostImg,ghostObj,
     this.offTexture = this.texture;
     this.touch = new Trip(this,ghostImg,ghostObj,1.1,positionMatrix);
     this.gameStateRef.collidableObjects.push(this.touch);
+    this.sndDown = new Audio(this.soundDown); // buffers automatically when created
 }
 Grave.prototype = Object.create(SolidObject.prototype);
 Grave.prototype.constructor = Grave;
@@ -636,7 +637,7 @@ Grave.prototype.seen = function(calling) {
         }
         this.texture=this.onTexture;
         var snd = new Audio(this.soundUp); // buffers automatically when created
-        snd.playbackRate=2;
+        snd.playbackRate=2.2;
         snd.play();
     }
 }
@@ -647,13 +648,13 @@ Grave.prototype.activate = function() {
             //console.log(obj.spawner);
             if (this.gameStateRef.collidableObjects[i].spawner===this) {
                 this.gameStateRef.collidableObjects.splice(i,1);
-                this.gameStateRef.ghostsCount++;
+                this.gameStateRef.ghostsCountThisLevel++;
                 break;
             }
         }
         this.texture=this.offTexture;
-        var snd = new Audio(this.soundDown); // buffers automatically when created
-        snd.play();
+        
+        this.sndDown.play();
         
     }
 }
