@@ -37,6 +37,11 @@ assets.preload = function() {
     loadOBJ(this.ghostObj); loadOBJ(this.tripObj);
     loadTexture(this.graveImg); loadTexture(this.ghostImg);
     loadTexture(this.graveOnImg); loadTexture(this.goalImg);
+    
+    this.sndDown = new Audio(this.ghostSoundDown); // buffers automatically when created
+    this.sndUp = new Audio(this.ghostSoundUp); // buffers automatically when created
+    this.sndUp.playbackRate=2.2;
+    this.sndGoal = new Audio(this.goalSound); // buffers automatically when created
 }
 
 //var logger=200;
@@ -349,11 +354,11 @@ gameState.addTree = function(name,location,density) {
 }
 
 gameState.addGoal = function(name,location) {
-    this.solidObjects[name] = (new Goal(this,assets.goalImg,assets.goalObj,assets.goalSound,0.6,location));              
+    this.solidObjects[name] = (new Goal(this,assets.goalImg,assets.goalObj,assets.sndGoal,0.6,location));              
 }
 
 gameState.addGrave = function(name,location,inFront,trips) {
-    this.solidObjects[name] = (new Grave(gameState,inFront,assets.graveImg,assets.graveOnImg,assets.graveObj,assets.ghostImg,assets.ghostObj,assets.ghostSoundUp,assets.ghostSoundDown,0.4,location));
+    this.solidObjects[name] = (new Grave(gameState,inFront,assets.graveImg,assets.graveOnImg,assets.graveObj,assets.ghostImg,assets.ghostObj,assets.sndUp,assets.sndDown,0.4,location));
     var tripCount=0;
     if (trips !== undefined)
 		for (var trip of trips) {

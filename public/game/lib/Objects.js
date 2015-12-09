@@ -578,8 +578,6 @@ function Grave(gameState,inFront,graveImg,graveOnImg,graveObj,ghostImg,ghostObj,
     this.inFront = inFront;
     this.ghostImg=ghostImg;
     this.ghostObj=ghostObj;
-    this.soundUp=soundUp;
-    this.soundDown=soundDown;
     this.state=0;
     this.trips = [];
     
@@ -588,7 +586,8 @@ function Grave(gameState,inFront,graveImg,graveOnImg,graveObj,ghostImg,ghostObj,
     this.offTexture = this.texture;
     this.touch = new Trip(this,ghostImg,ghostObj,1.1,positionMatrix);
     this.gameStateRef.collidableObjects.push(this.touch);
-    this.sndDown = new Audio(this.soundDown); // buffers automatically when created
+    this.sndDown = soundDown;
+    this.sndUp = soundUp;
 }
 Grave.prototype = Object.create(SolidObject.prototype);
 Grave.prototype.constructor = Grave;
@@ -636,9 +635,9 @@ Grave.prototype.seen = function(calling) {
             }
         }
         this.texture=this.onTexture;
-        var snd = new Audio(this.soundUp); // buffers automatically when created
-        snd.playbackRate=2.2;
-        snd.play();
+        
+        this.sndUp.currentTime=0;
+        this.sndUp.play();
     }
 }
 Grave.prototype.activate = function() {
@@ -654,6 +653,7 @@ Grave.prototype.activate = function() {
         }
         this.texture=this.offTexture;
         
+        this.sndDown.currentTime=0;
         this.sndDown.play();
         
     }
@@ -697,8 +697,7 @@ function Goal(gameStateRef,goalImg,goalObj,sound,scale,positionMatrix,owner) {
 Goal.prototype = Object.create(SolidObject.prototype);
 Goal.prototype.constructor = Goal;
 Goal.prototype.activate = function() {
-    var snd = new Audio(this.sound); // buffers automatically when created
-    snd.play();
+    this.sound.play();
     this.gameStateRef.nextLevel();
 }
 Goal.prototype.animate = function(elapsed) {
