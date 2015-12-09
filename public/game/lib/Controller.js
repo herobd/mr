@@ -196,24 +196,29 @@ define( function() {
 
             } else {
                 this.showGamePadMessage();
-                stickRx = -(this.mouseX-this.windowWidth/2.0)/(this.windowWidth/2.0);
-                stickRy = -(this.mouseY-this.windowHeight/2.0)/(this.windowHeight/2.0);
+                stickRx = -((this.mouseX-30)-(this.windowWidth-60)/2.0)/((this.windowWidth-60)/2.0);
+                stickRy = -((this.mouseY-30)-(this.windowWidth-60)/2.0)/((this.windowWidth-60)/2.0);
+                //this.mouseX = this.mouseY = 250;
+                //if (stickRx>1 || stickRx<-1 || stickRy>1 || stickRy<-1) {
+                //    stickRx = stickRy =0;
+                //}
+                if (stickRx>1) stickRx=1;
+                if (stickRy>1) stickRy=1;
+                if (stickRx<-1) stickRx=-1;
+                if (stickRy<-1) stickRy=-1;
                 
-                if (stickRx>1 || stickRx<-1 || stickRy>1 || stickRy<-1) {
-                    stickRx = stickRy =0;
-                }
                 
-                if (stickLx !== 0 && Math.abs(stickLx) < noiseThresh) {
-                    stickLx=0;
-                }
-                if (stickLy !== 0 && Math.abs(stickLy) < noiseThresh) {
-                    stickLy=0;
-                }
-                if (stickRx !== 0 && Math.abs(stickRx) < noiseThresh) {
+                if (stickRx !== 0 && Math.abs(stickRx) < noiseThresh*3) {
                     stickRx=0;
                 }
-                if (stickRy !== 0 && Math.abs(stickRy) < noiseThresh) {
+                else {
+                    stickRx = 2*((stickRx+1)-noiseThresh*2.5)/(2-noiseThresh*2.5) -1;
+                }
+                if (stickRy !== 0 && Math.abs(stickRy) < noiseThresh*7) {
                     stickRy=0;
+                }
+                else {
+                    stickRy = 2*((stickRy+1)-noiseThresh*7)/(2-noiseThresh*7) -1;
                 }
             }
             for (var todo of this.stickL) {todo(elapsed,stickLx,stickLy);}
