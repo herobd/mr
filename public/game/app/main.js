@@ -43,6 +43,9 @@ assets.preload = function() {
     loadOBJ(this.ghostObj); loadOBJ(this.tripObj);
     loadTexture(this.graveImg); loadTexture(this.ghostImg);
     loadTexture(this.graveOnImg); loadTexture(this.goalImg);
+    loadTexture(this.ghostImg_r); loadTexture(this.graveOnImg_r);
+    loadTexture(this.floorImg); loadTexture(this.wallImg);
+    loadTexture(this.barkImg); loadTexture(this.leafImg);
     
     this.sndDown = new Audio(this.ghostSoundDown); // buffers automatically when created
     this.sndUp = new Audio(this.ghostSoundUp); // buffers automatically when created
@@ -621,9 +624,15 @@ function animate() {
         var elapsed = timeNow - lastTime;
         
         if (gameState.changingLevel==-2) {
-            myGL.setLighting([0.5*3,0.5*3,0.5*3], 
+            if (gameState.changingLevel >= gameState.changingLevel_time) {
+                myGL.setLighting([0.5*3,0.5*3,0.5*3], 
+                                 [-0.3,1,0], 
+                                 [0.3,0.24,0.3]);
+            } else {
+                myGL.setLighting([0,0,0], 
                              [-0.3,1,0], 
-                             [0.3,0.24,0.3]);
+                             [0.3,0,0]);
+            }
         }
         else if (gameState.changingLevel>=0 && (gameState.changingLevel+=(elapsed/16.0)) < gameState.changingLevel_time) {
             var mult = 1+ 2*(gameState.changingLevel)/(gameState.changingLevel_time)
@@ -689,9 +698,12 @@ function TexturedObject(imgName, objName, location, scale) {
 
 var tick;
 function webGLStart() {
+    myGL.initGL(document.getElementById("it-is-a-canvas"),document.getElementById("flat"));
+    myGL.drawText('loading...',250, 250);
+    
     assets.preload();
 
-    myGL.initGL(document.getElementById("it-is-a-canvas"),document.getElementById("flat"));
+    
     gameState.nextLevel();
     
     
