@@ -628,7 +628,7 @@ function animate() {
                 myGL.setLighting([0.5*3,0.5*3,0.5*3], 
                                  [-0.3,1,0], 
                                  [0.3,0.24,0.3]);
-            } else {
+            } else if (gameState.dying >= gameState.dying_time) {
                 myGL.setLighting([0,0,0], 
                              [-0.3,1,0], 
                              [0.3,0,0]);
