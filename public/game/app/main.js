@@ -12,8 +12,10 @@ var assets={
     treeTopperObj : 'assests/tree_topper.obj',
     graveImg : 'assests/grave.jpg',
     graveOnImg : 'assests/grave-bright.jpg',
+    graveOnImg_r : 'assests/grave-bright_r.jpg',
     graveObj : 'assests/grave.obj',
     ghostImg : 'assests/cloth_text.png',
+    ghostImg_r : 'assests/cloth_text_r.png',
     ghostObj : 'assests/wraith_text.obj',
     ghostSoundUp : 'assests/Monster Growl-SoundBible.com-344645592.mp3',
     ghostSoundDown : 'assests/Zombie Moan-SoundBible.com-565291980.wav#t=0.1',
@@ -26,6 +28,8 @@ var assets={
     mapBlank : 'assests/mapBlank.png',
     mapGrave : 'assests/graveIcon.png',
     mapGhost : 'assests/ghostIcon.png',
+    mapGrave_r : 'assests/graveIcon_r.png',
+    mapGhost_r : 'assests/ghostIcon_r.png',
     song : 'assests/Day of Chaos.mp3',
     songFast : 'assests/Exhilarate.mp3',
     levels : ['0.level','1.level','2.level','rand.level']
@@ -108,6 +112,10 @@ gameState.graveImageUI=new Image();
 gameState.graveImageUI.src = assets.mapGrave;
 gameState.ghostImageUI=new Image();
 gameState.ghostImageUI.src = assets.mapGhost;
+gameState.graveImageUI_r=new Image();
+gameState.graveImageUI_r.src = assets.mapGrave_r;
+gameState.ghostImageUI_r=new Image();
+gameState.ghostImageUI_r.src = assets.mapGhost_r;
 
 gameState.sing =function(){
     var count=0;
@@ -380,7 +388,11 @@ gameState.addGoal = function(name,location) {
 }
 
 gameState.addGrave = function(name,location,inFront,trips) {
-    this.solidObjects[name] = (new Grave(gameState,inFront,assets.graveImg,assets.graveOnImg,assets.graveObj,assets.ghostImg,assets.ghostObj,assets.sndUp,assets.sndDown,0.4,location));
+    if (inFront)
+        this.solidObjects[name] = (new Grave(gameState,inFront,assets.graveImg,assets.graveOnImg,assets.graveObj,assets.ghostImg,assets.ghostObj,assets.sndUp,assets.sndDown,0.4,location));
+    else
+        this.solidObjects[name] = (new Grave(gameState,inFront,assets.graveImg,assets.graveOnImg_r,assets.graveObj,assets.ghostImg_r,assets.ghostObj,assets.sndUp,assets.sndDown,0.4,location));
+        
     var tripCount=0;
     if (trips !== undefined)
 		for (var trip of trips) {
@@ -455,8 +467,10 @@ gameState.loadLevel = function(loc) {
             
             if (loc == 'rand.level') {
 				myself.makeGoal();
-				myself.makeGraves(myself.currentLevel/1000.0);
-				myself.makeTrees(Math.min(0.5,myself.currentLevel/50.0));
+				myself.makeGraves(3/1000.0+(myself.currentLevel-3)/1500.0);
+				var treeDensity=Math.min(0.22,myself.currentLevel/50.0);
+				var treeSpacing=treeDensity<0.15?1.4:Math.max(0.7,1.4-(myself.currentLevel-11)/7.14)//l11
+				myself.makeTrees(treeDensity,treeSpacing);
 			}
 			gameState.sing();
           } else {
@@ -551,7 +565,7 @@ function drawMap() {
                     var proX = -relPos.dot(orth);
                     var proY = relPos.dot(d);
                     
-                    myGL.drawUI(gameState.graveImageUI,
+                    myGL.drawUI(obj.inFront?gameState.graveImageUI:gameState.graveImageUI_r,
                                 gameState.mapX+proX+gameState.mapSize/2.0 - gameState.mapSize/(6.0*2),
                                 gameState.mapY+proY+gameState.mapSize/2.0 - gameState.mapSize/(6.0*2),
                                 gameState.mapSize/6.0,gameState.mapSize/6.0);
@@ -569,7 +583,7 @@ function drawMap() {
                 var proX = -relPos.dot(orth);
                 var proY = relPos.dot(d);
                 //console.log(gameState.mapX+proX+gameState.mapSize/2.0 - gameState.mapSize/(6.0*2))
-                myGL.drawUI(gameState.ghostImageUI,
+                myGL.drawUI(obj.isSlow?gameState.ghostImageUI:gameState.ghostImageUI_r,
                             gameState.mapX+proX+gameState.mapSize/2.0 - gameState.mapSize/(6.0*2),
                             gameState.mapY+proY+gameState.mapSize/2.0 - gameState.mapSize/(6.0*2),
                             gameState.mapSize/6.0,gameState.mapSize/6.0);
@@ -691,8 +705,8 @@ function webGLStart() {
         var orth = d.cross(gameState.camera.up);
         d = d.normalize();
         orth = orth.normalize();
-        
-        var moveVec = d.scale(stick1y).plus(orth.scale(stick1x)).scale((gameState.camera.moveSpeed * elapsed) / 1000.0);
+        var moveVec = d.scale(stick1y).plus(orth.scale(stick1x)).normalize();
+        moveVec= moveVec.scale((gameState.camera.moveSpeed * elapsed) / 1000.0);
         
 
         for (var ele in gameState.solidObjects)
@@ -731,26 +745,29 @@ function webGLStart() {
     
     controller.keyboard[68].push( function(elapsed,pressed) {//d
         if (pressed) {
-            
-            movement(elapsed,-1,0,0,0);
+            controller.stickLx=-1;
+            //movement(elapsed,-1,0,0,0);
 	    }
 	});
 	
 	controller.keyboard[65].push( function(elapsed,pressed) {//a
 	    if (pressed) {
-            movement(elapsed,1,0,0,0);
+	        controller.stickLx=1;
+            //movement(elapsed,1,0,0,0);
 	    }
 	});
 	
 	controller.keyboard[83].push( function(elapsed,pressed) {//s
 	    if (pressed) {
-            movement(elapsed,0,1,0,0);
+	    controller.stickLy=1;
+            //movement(elapsed,0,1,0,0);
 	    }
 	});
 	
 	controller.keyboard[87].push( function(elapsed,pressed) {//w
 	    if (pressed) {
-            movement(elapsed,0,-1,0,0);
+	        controller.stickLy=-1;
+            //movement(elapsed,0,-1,0,0);
 	    }
 	});
 	
@@ -771,12 +788,14 @@ function webGLStart() {
 	
 	controller.keyboard[81].push( function(elapsed,pressed) {//q
 	    if (pressed) {
+	        //controller.stickRx=1;
             movement(elapsed,0,0,1,0);
 	    }
 	});
 	
 	controller.keyboard[69].push( function(elapsed,pressed) {//e
 	    if (pressed) {
+	        //controller.stickRx=-1;
             movement(elapsed,0,0,-1,0);
         }
 	});

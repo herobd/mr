@@ -554,10 +554,11 @@ TreePart.prototype.constructor = TreePart;
 
 
 //////////////////////////////////
-function Ghost(gameState,moveSpeed,ghostImg,ghostObj,scale,positionMatrix,owner) {
+function Ghost(gameState,moveSpeed,isSlow,ghostImg,ghostObj,scale,positionMatrix,owner) {
     SolidObject.call(this,ghostImg,ghostObj,0.5,scale,positionMatrix,owner);
     this.gameStateRef = gameState;
     this.moveSpeed=moveSpeed;
+    this.isSlow=isSlow;
 }
 Ghost.prototype = Object.create(SolidObject.prototype);
 Ghost.prototype.constructor = Ghost;
@@ -624,7 +625,7 @@ Grave.prototype.seen = function(calling) {
             moveSpeed=0.005;
             location = (this.gameStateRef.playerLocation().minus(this.position.posVec())).scale(3.0).plus(thisPos);
         }
-        var chaser= new Ghost(this.gameStateRef,moveSpeed,this.ghostImg, this.ghostObj,0.2,location);
+        var chaser= new Ghost(this.gameStateRef,moveSpeed,this.inFront,this.ghostImg, this.ghostObj,0.2,location);
         chaser.spawner=this;
         this.gameStateRef.collidableObjects.push(chaser);
         for (var i=0; i<this.gameStateRef.collidableObjects.length; i++) {
