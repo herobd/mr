@@ -25,10 +25,15 @@ define( function() {
         currentlyPressedKeys : {},
         currentlyReleasedKeys : {},
         
+        stickLx : 0,
+        stickLy : 0,
+        stickRx : 0,
+        stickRy : 0,
+        
         windowWidth : 500,
         windowHeight : 500,
-        mouseX : 0,
-        mouseY : 0,
+        mouseX : -9999,
+        mouseY : -9999,
         handleMouseMove : function (event) {
             this.mouseX = event.clientX;
             this.mouseY = event.clientY;
@@ -45,11 +50,18 @@ define( function() {
     
             var cind = document.getElementById("cind");
             
-            var stickLx=0;
-            var stickLy = 0;
-            var stickRx = 0;
-            var stickRy = 0;
+            this.stickLx=0;
+            this.stickLy = 0;
+            this.stickRx = 0;
+            this.stickRy = 0;
             var noiseThresh = 0.07;
+            
+            for (var key=0; key<256; key++) {
+                //console.log(this.keyboard[key]);
+                for ( var todo of this.keyboard[key]) {todo(elapsed,this.currentlyPressedKeys[key]);}
+                for ( var todo of this.keyboardUp[key]) {if (this.currentlyReleasedKeys[key]) todo(elapsed);
+                                                         this.currentlyReleasedKeys[key] = false;}
+            }
             
             if (gamepad !== undefined && gamepad !== null) {
                 this.hideGamePadMessage(gamepad.id);
@@ -75,22 +87,22 @@ define( function() {
 	                }
 	            }*/
                 if (gamepad.id.substring(0,17) === "Holtek Controller"  || gamepad.id.substring(0,4) === "Xbox" || gamepad.id.search(/Microsoft/)!=-1) {//xbox
-                    stickLx = -gamepad.axes[0];
-                    stickLy = gamepad.axes[1];
-                    stickRx = -gamepad.axes[2];
-                    stickRy = -gamepad.axes[3];
+                    this.stickLx = -gamepad.axes[0];
+                    this.stickLy = gamepad.axes[1];
+                    this.stickRx = -gamepad.axes[2];
+                    this.stickRy = -gamepad.axes[3];
                     
-                    if (stickLx !== 0 && Math.abs(stickLx) < noiseThresh) {
-	                    stickLx=0;
+                    if (this.stickLx !== 0 && Math.abs(this.stickLx) < noiseThresh) {
+	                    this.stickLx=0;
 	                }
-	                if (stickLy !== 0 && Math.abs(stickLy) < noiseThresh) {
-	                    stickLy=0;
+	                if (this.stickLy !== 0 && Math.abs(this.stickLy) < noiseThresh) {
+	                    this.stickLy=0;
 	                }
-	                if (stickRx !== 0 && Math.abs(stickRx) < noiseThresh) {
-	                    stickRx=0;
+	                if (this.stickRx !== 0 && Math.abs(this.stickRx) < noiseThresh) {
+	                    this.stickRx=0;
 	                }
-	                if (stickRy !== 0 && Math.abs(stickRy) < noiseThresh) {
-	                    stickRy=0;
+	                if (this.stickRy !== 0 && Math.abs(this.stickRy) < noiseThresh) {
+	                    this.stickRy=0;
 	                }
                     
                     dPadU = (gamepad.buttons[12].pressed || gamepad.buttons[12].value !== 0);
@@ -104,27 +116,27 @@ define( function() {
                     buttonW = (gamepad.buttons[2].pressed || gamepad.buttons[2].value !== 0);
                     
                     //TODO
-                    //normalize stick vector
+                    //normalize this.stick vector
                     //
                     //
                 
                 } else if (gamepad.id.substring(0,17) == 'Gravis Eliminator') {//??
-                    stickLx = -gamepad.axes[0];
-                    stickLy = gamepad.axes[1];
-                    stickRx = -gamepad.axes[4];
-                    stickRy = -gamepad.axes[2];
+                    this.stickLx = -gamepad.axes[0];
+                    this.stickLy = gamepad.axes[1];
+                    this.stickRx = -gamepad.axes[4];
+                    this.stickRy = -gamepad.axes[2];
                     
-                    if (stickLx !== 0 && Math.abs(stickLx) < noiseThresh) {
-	                    stickLx=0;
+                    if (this.stickLx !== 0 && Math.abs(this.stickLx) < noiseThresh) {
+	                    this.stickLx=0;
 	                }
-	                if (stickLy !== 0 && Math.abs(stickLy) < noiseThresh) {
-	                    stickLy=0;
+	                if (this.stickLy !== 0 && Math.abs(this.stickLy) < noiseThresh) {
+	                    this.stickLy=0;
 	                }
-	                if (stickRx !== 0 && Math.abs(stickRx) < noiseThresh) {
-	                    stickRx=0;
+	                if (this.stickRx !== 0 && Math.abs(this.stickRx) < noiseThresh) {
+	                    this.stickRx=0;
 	                }
-	                if (stickRy !== 0 && Math.abs(stickRy) < noiseThresh) {
-	                    stickRy=0;
+	                if (this.stickRy !== 0 && Math.abs(this.stickRy) < noiseThresh) {
+	                    this.stickRy=0;
 	                }
                     
                     dPadU = (gamepad.axes[3] < 0);
@@ -138,22 +150,22 @@ define( function() {
                     buttonW = (gamepad.buttons[0].pressed || gamepad.buttons[0].value !== 0);
                     
                 } else if (gamepad.id.substring(0,17) === "Logitech Logitech") {//PS
-                    stickLx = -gamepad.axes[0];
-                    stickLy = gamepad.axes[1];
-                    stickRx = -gamepad.axes[2];
-                    stickRy = -gamepad.axes[3];
+                    this.stickLx = -gamepad.axes[0];
+                    this.stickLy = gamepad.axes[1];
+                    this.stickRx = -gamepad.axes[2];
+                    this.stickRy = -gamepad.axes[3];
                     
-                    if (stickLx !== 0 && Math.abs(stickLx) < noiseThresh) {
-	                    stickLx=0;
+                    if (this.stickLx !== 0 && Math.abs(this.stickLx) < noiseThresh) {
+	                    this.stickLx=0;
 	                }
-	                if (stickLy !== 0 && Math.abs(stickLy) < noiseThresh) {
-	                    stickLy=0;
+	                if (this.stickLy !== 0 && Math.abs(this.stickLy) < noiseThresh) {
+	                    this.stickLy=0;
 	                }
-	                if (stickRx !== 0 && Math.abs(stickRx) < noiseThresh) {
-	                    stickRx=0;
+	                if (this.stickRx !== 0 && Math.abs(this.stickRx) < noiseThresh) {
+	                    this.stickRx=0;
 	                }
-	                if (stickRy !== 0 && Math.abs(stickRy) < noiseThresh) {
-	                    stickRy=0;
+	                if (this.stickRy !== 0 && Math.abs(this.stickRy) < noiseThresh) {
+	                    this.stickRy=0;
 	                }
                     
                     dPadU = (gamepad.axes[5] < 0);
@@ -196,36 +208,36 @@ define( function() {
 
             } else {
                 this.showGamePadMessage();
-                stickRx = -(this.mouseX-this.windowWidth/2.0)/(this.windowWidth/2.0);
-                stickRy = -(this.mouseY-this.windowHeight/2.0)/(this.windowHeight/2.0);
+                this.stickRx = -((this.mouseX-30)-(this.windowWidth-60)/2.0)/((this.windowWidth-60)/2.0);
+                this.stickRy = -((this.mouseY-30)-(this.windowWidth-60)/2.0)/((this.windowWidth-60)/2.0);
+                //this.mouseX = this.mouseY = 250;
+                //if (this.stickRx>1 || this.stickRx<-1 || this.stickRy>1 || this.stickRy<-1) {
+                //    this.stickRx = this.stickRy =0;
+                //}
+                if (this.stickRx>1) this.stickRx=1;
+                if (this.stickRy>1) this.stickRy=1;
+                if (this.stickRx<-1) this.stickRx=-1;
+                if (this.stickRy<-1) this.stickRy=-1;
                 
-                if (stickRx>1 || stickRx<-1 || stickRy>1 || stickRy<-1) {
-                    stickRx = stickRy =0;
-                }
                 
-                if (stickLx !== 0 && Math.abs(stickLx) < noiseThresh) {
-                    stickLx=0;
+                if (this.stickRx !== 0 && Math.abs(this.stickRx) < noiseThresh*3) {
+                    this.stickRx=0;
                 }
-                if (stickLy !== 0 && Math.abs(stickLy) < noiseThresh) {
-                    stickLy=0;
+                else {
+                    this.stickRx = 2*((this.stickRx+1)-noiseThresh*2.5)/(2-noiseThresh*2.5) -1;
                 }
-                if (stickRx !== 0 && Math.abs(stickRx) < noiseThresh) {
-                    stickRx=0;
+                if (this.stickRy !== 0 && Math.abs(this.stickRy) < noiseThresh*7) {
+                    this.stickRy=0;
                 }
-                if (stickRy !== 0 && Math.abs(stickRy) < noiseThresh) {
-                    stickRy=0;
+                else {
+                    this.stickRy = 2*((this.stickRy+1)-noiseThresh*7)/(2-noiseThresh*7) -1;
                 }
             }
-            for (var todo of this.stickL) {todo(elapsed,stickLx,stickLy);}
-            for (var todo of this.stickR) {todo(elapsed,stickRx,stickRy);}
-            for (var todo of this.stickLR) {todo(elapsed,stickLx,stickLy,stickRx,stickRy);}
+            for (var todo of this.stickL) {todo(elapsed,this.stickLx,this.stickLy);}
+            for (var todo of this.stickR) {todo(elapsed,this.stickRx,this.stickRy);}
+            for (var todo of this.stickLR) {todo(elapsed,this.stickLx,this.stickLy,this.stickRx,this.stickRy);}
             
-            for (var key=0; key<256; key++) {
-                //console.log(this.keyboard[key]);
-                for ( var todo of this.keyboard[key]) {todo(elapsed,this.currentlyPressedKeys[key]);}
-                for ( var todo of this.keyboardUp[key]) {if (this.currentlyReleasedKeys[key]) todo(elapsed);
-                                                         this.currentlyReleasedKeys[key] = false;}
-            }
+            
         }
     };    
     

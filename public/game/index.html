@@ -1,20 +1,23 @@
 <html>
 
 <head>
-<title>CS455 Game</title>
+<title>Haunted (CS455 Game)</title>
 <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
 <script src="webgl-debug.js"></script>
 <script type="text/javascript" src="lib/glMatrix-0.9.5.min.js"></script>
+<link href="../default.css" rel="stylesheet" type="text/css" />
 
 
 <script id="shader-fs" type="x-shader/x-fragment">
     precision mediump float;
     varying vec2 vTextureCoord;
     varying vec3 vLightWeighting;
+    varying float depth;
     uniform sampler2D uSampler;
     void main(void) {
         vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
-        gl_FragColor = vec4(textureColor.rgb * vLightWeighting, textureColor.a);
+        vec3 bgcolor = vec3(0.2, 0.2, 0.2);
+        gl_FragColor = vec4(((textureColor.rgb * vLightWeighting -bgcolor)* max(0.0,30.0-depth)/30.0)+bgcolor, textureColor.a);
     }
 
 </script>
@@ -33,6 +36,7 @@
     
     varying vec2 vTextureCoord;
     varying vec3 vLightWeighting;
+    varying float depth;
     void main(void) {
         gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
         vTextureCoord = aTextureCoord;
@@ -42,6 +46,9 @@
         float directionalLightWeighting = max(dot(transformedNormal, uLightingDirection), 0.0);
         vLightWeighting = uAmbientColor + uDirectionalColor * directionalLightWeighting;
         //vLightWeighting = vLightWeighting * max(0.0,min(1.0,(5.0-gl_Position[2]/gl_Position[3])/(5.0)));
+        //vec3 bgcolor = vec3(0.2, 0.2, 0.2);
+        //vLightWeighting = ((vLightWeighting-bgcolor) * max(0.0,5.0-gl_Position[2])/5.0);
+        depth = gl_Position[2];
     }
 
 </script>
@@ -96,7 +103,7 @@
 #instructions {
     position: absolute;
     left: 0px;
-    top: 520px;
+    top: 540px;
     z-index: 0;
 }
 </style>
@@ -113,15 +120,17 @@
         <canvas id="flat" width="500" height="500"></canvas>
     </div>
     
-    <div id="cind">No controller detected. Press any button.</div>
+    <div id="cind">No controller detected. Press any button to detect.</div>
     <br/>
     <br/>
     <div id="instructions">
         Use a gamepad with normal FPS controls to move around the scene. (Tested with Xbox and PS controllers)
         <br/>
         Alternate controls:<br/>
-        WASD to move around<br/>
-        Mouse to look
+        -WASD to move around<br/>
+        -Mouse to look<br/>
+        -or Q and E to look<br/>
+        -Use O to restart a level
         
     </div>
 </body>

@@ -554,10 +554,11 @@ TreePart.prototype.constructor = TreePart;
 
 
 //////////////////////////////////
-function Ghost(gameState,moveSpeed,ghostImg,ghostObj,scale,positionMatrix,owner) {
+function Ghost(gameState,moveSpeed,isSlow,ghostImg,ghostObj,scale,positionMatrix,owner) {
     SolidObject.call(this,ghostImg,ghostObj,0.5,scale,positionMatrix,owner);
     this.gameStateRef = gameState;
     this.moveSpeed=moveSpeed;
+    this.isSlow=isSlow;
 }
 Ghost.prototype = Object.create(SolidObject.prototype);
 Ghost.prototype.constructor = Ghost;
@@ -578,18 +579,34 @@ function Grave(gameState,inFront,graveImg,graveOnImg,graveObj,ghostImg,ghostObj,
     this.inFront = inFront;
     this.ghostImg=ghostImg;
     this.ghostObj=ghostObj;
-    this.soundUp=soundUp;
-    this.soundDown=soundDown;
     this.state=0;
     this.trips = [];
     
     this.onTexture = this.texture;
     this.initTexture(graveImg);
     this.offTexture = this.texture;
+    this.touch = new Trip(this,ghostImg,ghostObj,1.1,positionMatrix);
+    this.gameStateRef.collidableObjects.push(this.touch);
+    this.sndDown = soundDown;
+    this.sndUp = soundUp;
 }
 Grave.prototype = Object.create(SolidObject.prototype);
 Grave.prototype.constructor = Grave;
 Grave.prototype.seen = function(calling) {
+    if (calling == this.touch) {
+        console.log('trip')
+        this.activate();
+        for (var i=0; i<this.gameStateRef.collidableObjects.length; i++) {
+            //console.log(obj.spawner);
+            if (this.gameStateRef.collidableObjects[i]===calling) {
+                this.gameStateRef.collidableObjects.splice(i,1);
+                break;
+            }
+        }
+        return;
+    } 
+    
+    
     if (this.state ==0) {
         this.state=1;
         var moveSpeed;
@@ -599,12 +616,16 @@ Grave.prototype.seen = function(calling) {
         if (this.inFront) {
             moveSpeed=0.0025;
             location = (this.gameStateRef.playerLocation().minus(this.position.posVec())).scale(0.4).plus(thisPos);
+            if (this.gameStateRef.currentLevel==1) {
+                moveSpeed=0.001;
+                location = (this.gameStateRef.playerLocation().minus(this.position.posVec())).scale(0.2).plus(thisPos);
+            }
         }
         else {
             moveSpeed=0.005;
             location = (this.gameStateRef.playerLocation().minus(this.position.posVec())).scale(3.0).plus(thisPos);
         }
-        var chaser= new Ghost(this.gameStateRef,moveSpeed,this.ghostImg, this.ghostObj,0.2,location);
+        var chaser= new Ghost(this.gameStateRef,moveSpeed,this.inFront,this.ghostImg, this.ghostObj,0.2,location);
         chaser.spawner=this;
         this.gameStateRef.collidableObjects.push(chaser);
         for (var i=0; i<this.gameStateRef.collidableObjects.length; i++) {
@@ -615,9 +636,9 @@ Grave.prototype.seen = function(calling) {
             }
         }
         this.texture=this.onTexture;
-        var snd = new Audio(this.soundUp); // buffers automatically when created
-        snd.playbackRate=2;
-        snd.play();
+        this.gameStateRef.sing();
+        this.sndUp.currentTime=0;
+        this.sndUp.play();
     }
 }
 Grave.prototype.activate = function() {
@@ -627,16 +648,20 @@ Grave.prototype.activate = function() {
             //console.log(obj.spawner);
             if (this.gameStateRef.collidableObjects[i].spawner===this) {
                 this.gameStateRef.collidableObjects.splice(i,1);
+                this.gameStateRef.ghostsCountThisLevel++;
                 break;
             }
         }
         this.texture=this.offTexture;
-        var snd = new Audio(this.soundDown); // buffers automatically when created
-        snd.play();
+        this.gameStateRef.sing();
+        this.sndDown.currentTime=0;
+        this.sndDown.play();
+        
     }
 }
 Grave.prototype.setTripLoc = function(trip) {
-    this.trips.push( trip );
+    if (trip != this.touch)
+        this.trips.push( trip );
 }
 Grave.prototype.getTrips = function() {
     var ret = [];
@@ -673,8 +698,7 @@ function Goal(gameStateRef,goalImg,goalObj,sound,scale,positionMatrix,owner) {
 Goal.prototype = Object.create(SolidObject.prototype);
 Goal.prototype.constructor = Goal;
 Goal.prototype.activate = function() {
-    var snd = new Audio(this.sound); // buffers automatically when created
-    snd.play();
+    this.sound.play();
     this.gameStateRef.nextLevel();
 }
 Goal.prototype.animate = function(elapsed) {
