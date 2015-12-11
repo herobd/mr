@@ -80,7 +80,13 @@ function degToRad(degrees) {
 var controller = require('Controller');
 
 var gameState={};
-gameState.killed = function() {this.dying=0; this.lives--; console.log("kkkiiiillllllleeeedddd!!!");};
+gameState.killed = function() {
+    if (this.dying==-1) {
+        this.dying=0;
+        this.lives--;
+        console.log("kkkiiiillllllleeeedddd!!!");
+    }
+};
 gameState.dying = -1;
 gameState.dying_time = 50.0;
 gameState.changingLevel = -1;
