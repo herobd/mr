@@ -30,6 +30,8 @@ var assets={
     mapGhost : 'assests/ghostIcon.png',
     mapGrave_r : 'assests/graveIcon_r.png',
     mapGhost_r : 'assests/ghostIcon_r.png',
+    heart : 'assests/heart.png',
+    heartBroken : 'assests/heartbroken.png',
     song : 'assests/Day of Chaos.mp3',
     songFast : 'assests/Exhilarate.mp3',
     levels : ['0.level','1.level','2.level','rand.level']
@@ -78,7 +80,7 @@ function degToRad(degrees) {
 var controller = require('Controller');
 
 var gameState={};
-gameState.killed = function() {this.dying=0; console.log("kkkiiiillllllleeeedddd!!!");};
+gameState.killed = function() {this.dying=0; this.lives--; console.log("kkkiiiillllllleeeedddd!!!");};
 gameState.dying = -1;
 gameState.dying_time = 50.0;
 gameState.changingLevel = -1;
@@ -91,7 +93,8 @@ gameState.levels = assets.levels;
 gameState.currentLevel = -1;
 gameState.currentLevelFile = 'none';
 gameState.ghostsCount = 0;
-gameState.ghostsCountThisLevel = 0;
+gameState.ghostsCountOnLevel = [0];
+gameState.lives=3;
 
 gameState.camera = new SolidObject(null,null,0.3,1,new Vec([0,0,0.3]));
     
@@ -106,7 +109,7 @@ gameState.playerLocation = function() {return this.camera.lookingFrom;};
 
 gameState.mapX=2;
 gameState.mapY=2;
-gameState.mapSize=80;
+gameState.mapSize=100;
 gameState.mapImageUI=new Image();
 gameState.mapImageUI.src = assets.mapBg;
 gameState.mapImageBUI=new Image();
@@ -119,6 +122,10 @@ gameState.graveImageUI_r=new Image();
 gameState.graveImageUI_r.src = assets.mapGrave_r;
 gameState.ghostImageUI_r=new Image();
 gameState.ghostImageUI_r.src = assets.mapGhost_r;
+gameState.heartImageUI=new Image();
+gameState.heartImageUI.src = assets.heart;
+gameState.heartBrokenImageUI=new Image();
+gameState.heartBrokenImageUI.src = assets.heartBroken;
 
 gameState.sing =function(){
     var count=0;
@@ -130,7 +137,7 @@ gameState.sing =function(){
             }
         }
     }
-    if (count>4) {
+    if (count>5) {
         assets.sndBg.pause();
         assets.sndBgFast.play();
     } else {
@@ -436,8 +443,8 @@ gameState.loadLevel = function(loc) {
             myself.collidableObjects = [];
             myself.dying = -1;
             myself.changingLevel=-1;
-            myself.ghostsCountThisLevel=0;
-            
+            myself.ghostsCountOnLevel.push(myself.ghostsCountOnLevel[myself.ghostsCountOnLevel.length-1]);
+            console.log(myself.ghostsCountOnLevel)
             for (var name in loaded) {
                 if (name==="StartingLocation") 
                     myself.startingLoc= new Vec(loaded[name]);
@@ -488,16 +495,24 @@ gameState.loadLevel = function(loc) {
 }
 
 gameState.restartLevel = function() {
+    if ((this.lives)<1){
+        if (this.currentLevel >= this.levels.length) {
+            this.currentLevel--;
+            this.ghostsCountOnLevel.pop();
+            this.lives=3;
+        }
+    }
     this.loadLevel(this.currentLevelFile);
+    this.ghostsCountOnLevel.pop();
 }
 
 gameState.nextLevel = function() {
-    this.ghostsCount+=this.ghostsCountThisLevel;
-    this.ghostsCountThisLevel=0;
+    //this.ghostsCount+=this.ghostsCountThisLevel;
+    //this.ghostsCountThisLevel=0;
 	if (++this.currentLevel < this.levels.length)
 		this.currentLevelFile = this.levels[this.currentLevel]
     this.changingLevel=0;
-    
+    this.lives=3;
     //this.loadLevel(this.currentLevelFile);
 }
 
@@ -540,7 +555,19 @@ function drawTexturedObjects(objectsToDraw,perspectiveMat) {
     }
 }
 
-function drawMap() {
+function drawUI() {
+    if (gameState.currentLevel >= gameState.levels.length) {
+        //myGL.drawText("Lives: "+(gameState.lives),170, 20);
+        myGL.drawUI(gameState.lives>0? gameState.heartImageUI : gameState.heartBrokenImageUI,
+                            gameState.mapX+gameState.mapSize + 20,20,
+                            gameState.mapSize/5.5,gameState.mapSize/5.5);
+        myGL.drawUI(gameState.lives>1? gameState.heartImageUI : gameState.heartBrokenImageUI,
+                            gameState.mapX+gameState.mapSize + 45,20,
+                            gameState.mapSize/5.5,gameState.mapSize/5.5);
+        myGL.drawUI(gameState.lives>2? gameState.heartImageUI : gameState.heartBrokenImageUI,
+                            gameState.mapX+gameState.mapSize + 70,20,
+                            gameState.mapSize/5.5,gameState.mapSize/5.5);
+    }
     if (gameState.changingLevel>=0 || gameState.dying>=0)
         return;
     var drawing=false;
@@ -598,7 +625,7 @@ function drawMap() {
 	}
 	if (gameState.currentLevel>1) {
         myGL.drawText("Level: "+(gameState.currentLevel),430, 20);
-        myGL.drawText("Ghosts banished: "+(gameState.ghostsCount+gameState.ghostsCountThisLevel),360, 50);
+        myGL.drawText("Ghosts banished: "+(gameState.ghostsCount+gameState.ghostsCountOnLevel[gameState.ghostsCountOnLevel.length-1]),360, 50);
     }
     else if (gameState.currentLevel==0) {
         myGL.drawText("Welcome to",380, 20);
@@ -608,6 +635,7 @@ function drawMap() {
         if (gameState.solidObjects['grave']!=undefined && gameState.solidObjects['grave'].state==1)
             myGL.drawText('touch grave to banish ghost',300, 80);
     }
+    
     //myGL.drawText("mouse: "+(controller.mouseX)+', '+(controller.mouseX));
     //console.log(gameState.mapX+0+gameState.mapSize/2.0 - gameState.mapSize/(6.0*1))
     //myGL.drawUI(gameState.graveImageUI,
@@ -918,7 +946,7 @@ function webGLStart() {
         }
         drawTexturedObjects(objectsToDraw,perspectiveMat);
         
-        drawMap();
+        drawUI();
         
         //globalDepth = myGL.getDepth();
     }

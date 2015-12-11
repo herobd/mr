@@ -439,9 +439,9 @@ SolidObject.prototype.collisionCheck = function(otherSolidObject,myMoveVec,activ
     }
     else if (futDist-(this.boundingRadius+otherSolidObject.boundingRadius) <= 0) {
         if (otherSolidObject.plane)
-            return otherSolidObject.collisionCheckPlane(this,myMoveVec.scale(-1));
+            return otherSolidObject.collisionCheckPlane(this,myMoveVec.scale(-1),activate);
         if (this.plane)
-            return this.collisionCheckPlane(otherSolidObject,myMoveVec);
+            return this.collisionCheckPlane(otherSolidObject,myMoveVec,activate);
     }
     return null;
 }
@@ -456,7 +456,7 @@ SolidObject.prototype.collisionCheckPlane = function(otherSolidObject,myMoveVec,
     var futDist = otherSolidObject.position.posVec().dot(thisNormal)+d_future;
     //console.log("cur = "+curDist);
     //console.log("fut = "+futDist);
-    if (curDist!==0 && curDist*futDist<=0) {
+    if ((curDist>this.thickness||Math.abs(futDist)<Math.abs(curDist)) && (curDist*futDist<=0 || Math.abs(futDist)<this.thickness)) {
         if (activate) {
 			this.activate();
 			otherSolidObject.activate();
@@ -479,6 +479,7 @@ function Wall(img,obj,rotation,scale,positionMatrix,owner) {
     this.rotationAngle=rotation;
     this.rotation = (new Mat4()).rotateYAxis(rotation);
     this.plane=true;
+    this.thickness=0.5;
     this.boundingRadius = 0.5*scale;
     this.scaleM = (new Mat4()).scale([scale,setScale,setScale]);
 }
@@ -559,18 +560,50 @@ function Ghost(gameState,moveSpeed,isSlow,ghostImg,ghostObj,scale,positionMatrix
     this.gameStateRef = gameState;
     this.moveSpeed=moveSpeed;
     this.isSlow=isSlow;
+    var loner=Math.random();
+    if (loner>0.9)
+        this.spacing=3.0+100*(loner-0.9);
 }
 Ghost.prototype = Object.create(SolidObject.prototype);
 Ghost.prototype.constructor = Ghost;
+Ghost.prototype.spacing=3.0;
 Ghost.prototype.activate = function() {
         this.gameStateRef.killed();
 }
 Ghost.prototype.animate = function(elapsed) {
     var toPlayer = (this.gameStateRef.playerLocation().minus(this.position.posVec())).normalize();
+    var up = new Vec([0,1,0]);
+    var orth = toPlayer.cross(up);
+    
     var angleToPlayer = Math.atan2(toPlayer[2],toPlayer[0]);
     this.setRotation ( (new Mat4()).rotateYAxis(-180.0*angleToPlayer/Math.PI));
-    this.setPosition ( this.position.translate(toPlayer.scale(elapsed*this.moveSpeed)));
+    
+    var myPos = this.position.posVec();
+    var closestPos=null;
+    var closestNeg=null;
+    for (obj of this.gameStateRef.collidableObjects) {
+        if (obj!=this && obj instanceof Ghost && obj.position.posVec().distance(myPos)<this.spacing) {
+            var orthDist = obj.position.posVec().minus(myPos).dot(orth);
+            if (orthDist>=0 && (orthDist<closestPos || closestPos==null)) {
+                closestPos=orthDist;
+            }
+            else if (orthDist<0 && (orthDist>closestNeg || closestNeg==null)) {
+                closestNeg=orthDist;
+            }
+        }
+    }
+    var move = toPlayer;
+    if (closestPos!=null && closestNeg!=null)
+        move = move.plus(orth.scale((closestPos+closestNeg)/4.0));
+    else if (closestPos!=null)
+        move = move.plus(orth.scale((-closestPos)/3.0));
+    else if (closestNeg!=null)
+        move = move.plus(orth.scale((-closestNeg)/3.0));
+        
+    
+    this.setPosition ( this.position.translate(move.normalize().scale(elapsed*this.moveSpeed)));
     this.collisionCheck(this.gameStateRef.camera,toPlayer.scale(elapsed*this.moveSpeed));
+    
 }
 ////////////////////////////
 function Grave(gameState,inFront,graveImg,graveOnImg,graveObj,ghostImg,ghostObj,soundUp,soundDown,scale,positionMatrix,owner) {
@@ -648,7 +681,7 @@ Grave.prototype.activate = function() {
             //console.log(obj.spawner);
             if (this.gameStateRef.collidableObjects[i].spawner===this) {
                 this.gameStateRef.collidableObjects.splice(i,1);
-                this.gameStateRef.ghostsCountThisLevel++;
+                this.gameStateRef.ghostsCountOnLevel[this.gameStateRef.ghostsCountOnLevel.length-1]++;
                 break;
             }
         }
