@@ -54,7 +54,7 @@ define( function() {
             this.stickLy = 0;
             this.stickRx = 0;
             this.stickRy = 0;
-            var noiseThresh = 0.07;
+            var noiseThresh = 0.09;
             
             for (var key=0; key<256; key++) {
                 //console.log(this.keyboard[key]);
@@ -86,7 +86,7 @@ define( function() {
 	                    gamepad.axes[i]=0;
 	                }
 	            }*/
-                if (gamepad.id.substring(0,17) === "Holtek Controller"  || gamepad.id.substring(0,4) === "Xbox" || gamepad.id.search(/Microsoft/)!=-1) {//xbox
+                if (gamepad.id.substring(0,17) === "Holtek Controller"  || gamepad.id.search(/[Xx]box/)!=-1 || gamepad.id.search(/[Mm]icrosoft/)!=-1) {//xbox
                     this.stickLx = -gamepad.axes[0];
                     this.stickLy = gamepad.axes[1];
                     this.stickRx = -gamepad.axes[2];
@@ -120,7 +120,7 @@ define( function() {
                     //
                     //
                 
-                } else if (gamepad.id.substring(0,17) == 'Gravis Eliminator') {//??
+                } else if (gamepad.id.search(/[Gg]ravis/)!=-1) {//??
                     this.stickLx = -gamepad.axes[0];
                     this.stickLy = gamepad.axes[1];
                     this.stickRx = -gamepad.axes[4];
@@ -149,7 +149,7 @@ define( function() {
                     buttonE = (gamepad.buttons[2].pressed || gamepad.buttons[2].value !== 0);
                     buttonW = (gamepad.buttons[0].pressed || gamepad.buttons[0].value !== 0);
                     
-                } else if (gamepad.id.substring(0,17) === "Logitech Logitech") {//PS
+                } else {//if (gamepad.id.substring(0,17) === "Logitech Logitech") {//PS
                     this.stickLx = -gamepad.axes[0];
                     this.stickLy = gamepad.axes[1];
                     this.stickRx = -gamepad.axes[2];

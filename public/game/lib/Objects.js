@@ -588,8 +588,8 @@ function Ghost(gameState,moveSpeed,isSlow,ghostImg,ghostObj,scale,positionMatrix
     this.moveSpeed=moveSpeed;
     this.isSlow=isSlow;
     var loner=Math.random();
-    if (loner>0.9)
-        this.spacing=4.0+100*(loner-0.9);
+    if (loner>0.8)
+        this.spacing=4.0+100*(loner-0.8);
 }
 Ghost.prototype = Object.create(SolidObject.prototype);
 Ghost.prototype.constructor = Ghost;
@@ -674,10 +674,10 @@ Grave.prototype.seen = function(calling) {
         var thisPos = this.getPosVec();
         thisPos[1]=1.0;
         if (this.inFront) {
-            moveSpeed=0.0025;
+            moveSpeed=0.0028;
             location = (this.gameStateRef.playerLocation().minus(thisPos).scale(0.4).plus(thisPos));
             if (this.gameStateRef.currentLevel==1) {
-                moveSpeed=0.001;
+                moveSpeed=0.0009;
                 location = (this.gameStateRef.playerLocation().minus(thisPos).scale(0.2).plus(thisPos));
             }
         }

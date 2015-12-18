@@ -558,7 +558,7 @@ gameState.loadLevel = function(loc) {
 				    myself.makeHuts(3);
 				}
 				
-				myself.makeGraves(3/2000.0+(myself.currentLevel-3)/3000.0);
+				myself.makeGraves(3/1500.0+(myself.currentLevel-3)/3000.0);
 				var treeDensity=Math.min(0.22,myself.currentLevel/50.0);
 				var treeSpacing=treeDensity<0.15?1.4:Math.max(0.7,1.4-(myself.currentLevel-11)/7.14)//l11
 				myself.makeTrees(treeDensity,treeSpacing);
