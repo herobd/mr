@@ -11,7 +11,8 @@ var SampleApp = function() {
 
     //  Scope.
     var self = this;
-
+    
+    self.redirs={};
 
     /*  ================================================================  */
     /*  Helper functions.                                                 */
@@ -66,9 +67,17 @@ var SampleApp = function() {
      */
     self.terminator = function(sig){
         if (typeof sig === "string") {
+            fs.writeFile('redirs.json', JSON.stringify(self.redirs), function (err) {
+              if (err) {
+                console.log('ERROR: '+err);
+                process.exit(1);
+              }
+              console.log('redirs saved!');
+              process.exit(1);
+            });
            console.log('%s: Received %s - terminating sample app ...',
                        Date(Date.now()), sig);
-           process.exit(1);
+           
         }
         console.log('%s: Node server stopped.', Date(Date.now()) );
     };
@@ -119,6 +128,32 @@ var SampleApp = function() {
         self.routes['/pms1stward'] = function(req, res) {
             res.redirect('https://docs.google.com/forms/d/1OjXD_ubMFUtBJROOltXHg6Gx9X5nS1eNssF-089QPCA/viewform');
         };
+        
+        self.routes['/app'] = function(req, res) {
+            res.redirect('http://128.187.81.130:13723');
+        };
+        
+        self.routes['/set/:name'] = function(req, res) {
+            var name=req.params.name;
+            var url=req.query.url;
+            self.redirs[name]=url;
+            res.redirect(url);
+        };
+        
+        self.routes['/s/:name'] = function(req, res) {
+            if (req.query.url === undefined)
+            {
+                if (self.redirs[req.params.name] !== undefined)
+                    res.redirect(self.redirs[req.params.name]);
+                else
+                    res.redirect('/');
+            } else {
+                var name=req.params.name;
+                var url=req.query.url;
+                self.redirs[name]=url;
+                res.redirect(url);
+            }
+        };
     };
 
 
@@ -147,7 +182,17 @@ var SampleApp = function() {
         self.setupVariables();
         self.populateCache();
         self.setupTerminationHandlers();
-
+        
+        //saved redir file
+        fs.exists('redirs.json', function (exists) {
+          if (exists) {
+            fs.readFile('redirs.json', function (err, data) {
+                if (err) throw err;
+                    self.redirs=JSON.parse(data);
+            });
+          }
+        });
+        
         // Create the express server and routes.
         self.initializeServer();
     };

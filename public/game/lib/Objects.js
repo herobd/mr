@@ -1,7 +1,7 @@
     //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Inheritance_and_the_prototype_chain
     //This has a realy confusing exampel I'm basing my inheritance off of
     
-    var Origin = {getDrawMatrix: function() {return new Mat4();}};
+    var Origin = {mat: new Mat4(), getDrawMatrix: function() {return this.mat;}};
     
     function GenericObject(img,obj,scale,positionMatrix,owner) {
         this.init(scale,positionMatrix,owner);
@@ -50,6 +50,9 @@
     };
     GenericObject.prototype.getParts = function() {
         	 return this.parts;
+    };
+    GenericObject.prototype.getPosVec = function() {
+        	 return this.getDrawMatrix().posVec();
     };
     GenericObject.prototype.animate = function() {
         	 //no animation
@@ -439,9 +442,9 @@ SolidObject.prototype.collisionCheck = function(otherSolidObject,myMoveVec,activ
     }
     else if (futDist-(this.boundingRadius+otherSolidObject.boundingRadius) <= 0) {
         if (otherSolidObject.plane)
-            return otherSolidObject.collisionCheckPlane(this,myMoveVec.scale(-1));
+            return otherSolidObject.collisionCheckPlane(this,myMoveVec.scale(-1),activate);
         if (this.plane)
-            return this.collisionCheckPlane(otherSolidObject,myMoveVec);
+            return this.collisionCheckPlane(otherSolidObject,myMoveVec,activate);
     }
     return null;
 }
@@ -450,13 +453,13 @@ SolidObject.prototype.collisionCheckPlane = function(otherSolidObject,myMoveVec,
 	if (activate==undefined) activate=true;
     var futurePos = this.position.translate(myMoveVec).posVec();
     var thisNormal = this.rotation.multiplyPoint([0,0,1]);//we assum this is standard orientation for walls
-    var d = -1*this.position.posVec().dot(thisNormal);
+    var d = -1*this.getPosVec().dot(thisNormal);
     var d_future = -1*futurePos.dot(thisNormal);
-    var curDist = otherSolidObject.position.posVec().dot(thisNormal)+d;
-    var futDist = otherSolidObject.position.posVec().dot(thisNormal)+d_future;
+    var curDist = otherSolidObject.getPosVec().dot(thisNormal)+d;
+    var futDist = otherSolidObject.getPosVec().dot(thisNormal)+d_future;
     //console.log("cur = "+curDist);
     //console.log("fut = "+futDist);
-    if (curDist!==0 && curDist*futDist<=0) {
+    if ((curDist>this.thickness||Math.abs(futDist)<Math.abs(curDist)) && (curDist*futDist<=0 || Math.abs(futDist)<this.thickness)) {
         if (activate) {
 			this.activate();
 			otherSolidObject.activate();
@@ -469,6 +472,30 @@ SolidObject.prototype.collisionCheckPlane = function(otherSolidObject,myMoveVec,
     else
         return null;
 }
+/*SolidObject.prototype.collisionCheckPlane = function(otherSolidObject,myMoveVec,activate)
+{
+	if (activate==undefined) activate=true;
+    var futurePos = this.position.translate(myMoveVec).posVec();
+    var thisNormal = this.rotation.multiplyPoint([0,0,1]);//we assum this is standard orientation for walls
+    var d = -1*this.position.posVec().dot(thisNormal);
+    var d_future = -1*futurePos.dot(thisNormal);
+    var curDist = otherSolidObject.position.posVec().dot(thisNormal)+d;
+    var futDist = otherSolidObject.position.posVec().dot(thisNormal)+d_future;
+    //console.log("cur = "+curDist);
+    //console.log("fut = "+futDist);
+    if ((curDist>this.thickness||Math.abs(futDist)<Math.abs(curDist)) && (curDist*futDist<=0 || Math.abs(futDist)<this.thickness)) {
+        if (activate) {
+			this.activate();
+			otherSolidObject.activate();
+		}
+        if (curDist>0)
+            return thisNormal;
+        else
+            return thisNormal.scale(-1);
+    }
+    else
+        return null;
+}*/
 /////////////////////	
 function Wall(img,obj,rotation,scale,positionMatrix,owner) {
     this.init(scale,positionMatrix,owner);
@@ -479,6 +506,7 @@ function Wall(img,obj,rotation,scale,positionMatrix,owner) {
     this.rotationAngle=rotation;
     this.rotation = (new Mat4()).rotateYAxis(rotation);
     this.plane=true;
+    this.thickness=0.5;
     this.boundingRadius = 0.5*scale;
     this.scaleM = (new Mat4()).scale([scale,setScale,setScale]);
 }
@@ -559,18 +587,50 @@ function Ghost(gameState,moveSpeed,isSlow,ghostImg,ghostObj,scale,positionMatrix
     this.gameStateRef = gameState;
     this.moveSpeed=moveSpeed;
     this.isSlow=isSlow;
+    var loner=Math.random();
+    if (loner>0.8)
+        this.spacing=4.0+100*(loner-0.8);
 }
 Ghost.prototype = Object.create(SolidObject.prototype);
 Ghost.prototype.constructor = Ghost;
+Ghost.prototype.spacing=3.0;
 Ghost.prototype.activate = function() {
         this.gameStateRef.killed();
 }
 Ghost.prototype.animate = function(elapsed) {
-    var toPlayer = (this.gameStateRef.playerLocation().minus(this.position.posVec())).normalize();
+    var toPlayer = (this.gameStateRef.playerLocation().minus(this.getPosVec())).normalize();
+    var up = new Vec([0,1,0]);
+    var orth = toPlayer.cross(up);
+    
     var angleToPlayer = Math.atan2(toPlayer[2],toPlayer[0]);
     this.setRotation ( (new Mat4()).rotateYAxis(-180.0*angleToPlayer/Math.PI));
-    this.setPosition ( this.position.translate(toPlayer.scale(elapsed*this.moveSpeed)));
+    
+    var myPos = this.getPosVec();
+    var closestPos=null;
+    var closestNeg=null;
+    for (obj of this.gameStateRef.collidableObjects) {
+        if (obj!=this && obj instanceof Ghost && obj.getPosVec().distance(myPos)<this.spacing) {
+            var orthDist = obj.getPosVec().minus(myPos).dot(orth);
+            if (orthDist>=0 && (orthDist<closestPos || closestPos==null)) {
+                closestPos=orthDist;
+            }
+            else if (orthDist<0 && (orthDist>closestNeg || closestNeg==null)) {
+                closestNeg=orthDist;
+            }
+        }
+    }
+    var move = toPlayer;
+    if (closestPos!=null && closestNeg!=null)
+        move = move.plus(orth.scale((closestPos+closestNeg)/4.0));
+    else if (closestPos!=null)
+        move = move.plus(orth.scale((-closestPos)/3.0));
+    else if (closestNeg!=null)
+        move = move.plus(orth.scale((-closestNeg)/3.0));
+        
+    
+    this.setPosition ( this.position.translate(move.normalize().scale(elapsed*this.moveSpeed)));
     this.collisionCheck(this.gameStateRef.camera,toPlayer.scale(elapsed*this.moveSpeed));
+    
 }
 ////////////////////////////
 function Grave(gameState,inFront,graveImg,graveOnImg,graveObj,ghostImg,ghostObj,soundUp,soundDown,scale,positionMatrix,owner) {
@@ -611,19 +671,19 @@ Grave.prototype.seen = function(calling) {
         this.state=1;
         var moveSpeed;
         var location;
-        var thisPos = this.position.posVec();
+        var thisPos = this.getPosVec();
         thisPos[1]=1.0;
         if (this.inFront) {
-            moveSpeed=0.0025;
-            location = (this.gameStateRef.playerLocation().minus(this.position.posVec())).scale(0.4).plus(thisPos);
+            moveSpeed=0.0028;
+            location = (this.gameStateRef.playerLocation().minus(thisPos).scale(0.4).plus(thisPos));
             if (this.gameStateRef.currentLevel==1) {
-                moveSpeed=0.001;
-                location = (this.gameStateRef.playerLocation().minus(this.position.posVec())).scale(0.2).plus(thisPos);
+                moveSpeed=0.0009;
+                location = (this.gameStateRef.playerLocation().minus(thisPos).scale(0.2).plus(thisPos));
             }
         }
         else {
             moveSpeed=0.005;
-            location = (this.gameStateRef.playerLocation().minus(this.position.posVec())).scale(3.0).plus(thisPos);
+            location = (this.gameStateRef.playerLocation().minus(thisPos).scale(3.0).plus(thisPos));
         }
         var chaser= new Ghost(this.gameStateRef,moveSpeed,this.inFront,this.ghostImg, this.ghostObj,0.2,location);
         chaser.spawner=this;
@@ -650,7 +710,7 @@ Grave.prototype.activate = function() {
             //console.log(obj.spawner);
             if (this.gameStateRef.collidableObjects[i].spawner===this) {
                 this.gameStateRef.collidableObjects.splice(i,1);
-                this.gameStateRef.ghostsCountThisLevel++;
+                this.gameStateRef.ghostsCountOnLevel[this.gameStateRef.ghostsCountOnLevel.length-1]++;
                 break;
             }
         }
@@ -670,7 +730,7 @@ Grave.prototype.setTripLoc = function(trip) {
 Grave.prototype.getTrips = function() {
     var ret = [];
     for (trip of this.trips) {
-        ret.push({scale:trip.scale, loc:trip.position.posVec().flat()});
+        ret.push({scale:trip.scale, loc:trip.getPosVec().flat()});
     }
     return ret;
 }
@@ -708,9 +768,40 @@ Goal.prototype.activate = function() {
 }
 Goal.prototype.animate = function(elapsed) {
     //console.log(this.gameStateRef.playerLocation().distance(this.position.posVec()))
-    var spinSpeed = 0.1+0.6*(8-Math.min(8,this.gameStateRef.playerLocation().distance(this.position.posVec())));
+    var spinSpeed = 0.1+0.6*(8-Math.min(8,this.gameStateRef.playerLocation().distance(this.getPosVec())));
     this.setRotation ( this.rotation.rotateYAxis(spinSpeed*elapsed));
 }
+////////////////////////////////
+function Hut(name,gameStateRef,wallImg,wallObj,rotation,scale,positionMatrix,owner) {
+    GenericObject.call(this,null,null,scale,positionMatrix,owner);
+    this.setRotation((new Mat4()).rotateYAxis(rotation));
+    var myself=undefined;
+    //Wall(img,obj,rotation,scale,positionMatrix,owner)
+    /*var parts = [new Wall(wallImg,wallObj,0,scale*3,[0,0,-1.5],myself),//back out
+                  new Wall(wallImg,wallObj,90,scale*3,[-1.5,0,0],myself),//right out
+                  new Wall(wallImg,wallObj,90,scale*3,[1.5,0,0],myself),//left out
+                  new Wall(wallImg,wallObj,0,scale*0.5,[-1.25,0,1.5],myself),//rightfront out
+                  new Wall(wallImg,wallObj,0,scale*0.5,[1.25,0,1.5],myself),//leftfront out
+                  new Wall(wallImg,wallObj,0,scale*2,[0,0,-1],myself),//back in
+                  new Wall(wallImg,wallObj,90,scale*2.5,[-1,0,0.25],myself),//right out
+                  new Wall(wallImg,wallObj,90,scale*2.5,[1,0,0.25],myself)//left out
+                 ];*/
+    var transfMat=this.getDrawMatrix();//(new Mat4()).scale([scale,scale,scale]).rotateYAxis(rotation).translate(positionMatrix);
+    var parts = [new Wall(wallImg,wallObj,0+rotation,scale*3,transfMat.multiplyPoint([0,0,-1.5]),myself),//back out
+                  new Wall(wallImg,wallObj,90+rotation,scale*3,transfMat.multiplyPoint([-1.5,0,0]),myself),//right out
+                  new Wall(wallImg,wallObj,90+rotation,scale*3,transfMat.multiplyPoint([1.5,0,0]),myself),//left out
+                  new Wall(wallImg,wallObj,0+rotation,scale*0.5,transfMat.multiplyPoint([-1.25,0,1.5]),myself),//rightfront out
+                  new Wall(wallImg,wallObj,0+rotation,scale*0.5,transfMat.multiplyPoint([1.25,0,1.5]),myself),//leftfront out
+                  new Wall(wallImg,wallObj,0+rotation,scale*2,transfMat.multiplyPoint([0,0,-1]),myself),//back in
+                  new Wall(wallImg,wallObj,90+rotation,scale*2.5,transfMat.multiplyPoint([-1,0,0.25]),myself),//right out
+                  new Wall(wallImg,wallObj,90+rotation,scale*2.5,transfMat.multiplyPoint([1,0,0.25]),myself)//left out
+                 ];
+    for (var i=0; i<parts.length; i++) {
+        gameStateRef.solidObjects[name+i]=parts[i];
+    }
+}
+Hut.prototype = Object.create(GenericObject.prototype);
+Hut.prototype.constructor = Hut;
 ////////////////////////////////
 function FloorObject(img,obj,scale,positionMatrix,owner) {
     this.init(scale,positionMatrix,owner);

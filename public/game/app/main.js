@@ -2,6 +2,7 @@ var assets={
     floorImg : 'assests/forest-floor-terrain_0040_03_S_enl.jpg',
     floorObj : 'assests/unitfloor.obj',
     wallImg : 'assests/BrickOldOvergrown256.jpg',
+    hutImg : 'assests/BrickOldOvergrown256_l.jpg',
     wallObj : 'assests/unitwall.obj',
     barkImg : 'assests/bark_sqr.png',
     leafImg : 'assests/leaf.jpg',
@@ -30,6 +31,8 @@ var assets={
     mapGhost : 'assests/ghostIcon.png',
     mapGrave_r : 'assests/graveIcon_r.png',
     mapGhost_r : 'assests/ghostIcon_r.png',
+    heart : 'assests/heart.png',
+    heartBroken : 'assests/heartbroken.png',
     song : 'assests/Day of Chaos.mp3',
     songFast : 'assests/Exhilarate.mp3',
     levels : ['0.level','1.level','2.level','rand.level']
@@ -78,7 +81,13 @@ function degToRad(degrees) {
 var controller = require('Controller');
 
 var gameState={};
-gameState.killed = function() {this.dying=0; console.log("kkkiiiillllllleeeedddd!!!");};
+gameState.killed = function() {
+    if (this.dying==-1) {
+        this.dying=0;
+        this.lives--;
+        console.log("kkkiiiillllllleeeedddd!!!");
+    }
+};
 gameState.dying = -1;
 gameState.dying_time = 50.0;
 gameState.changingLevel = -1;
@@ -91,8 +100,9 @@ gameState.levels = assets.levels;
 gameState.currentLevel = -1;
 gameState.currentLevelFile = 'none';
 gameState.ghostsCount = 0;
-gameState.ghostsCountThisLevel = 0;
 gameState.mute=true;
+gameState.ghostsCountOnLevel = [0];
+gameState.lives=3;
 
 gameState.camera = new SolidObject(null,null,0.3,1,new Vec([0,0,0.3]));
     
@@ -102,12 +112,15 @@ gameState.camera.lookingFrom= new Vec([0,1,0.3]);
 gameState.camera.up= new Vec([0,1,0]);
 gameState.camera.moveSpeed= 5;
 gameState.camera.rotSpeed= degToRad(0.7);
+gameState.camera.getPosVec = function() {
+    	 return this.position.posVec();
+};
 
 gameState.playerLocation = function() {return this.camera.lookingFrom;};
 
 gameState.mapX=2;
 gameState.mapY=2;
-gameState.mapSize=80;
+gameState.mapSize=100;
 gameState.mapImageUI=new Image();
 gameState.mapImageUI.src = assets.mapBg;
 gameState.mapImageBUI=new Image();
@@ -120,6 +133,10 @@ gameState.graveImageUI_r=new Image();
 gameState.graveImageUI_r.src = assets.mapGrave_r;
 gameState.ghostImageUI_r=new Image();
 gameState.ghostImageUI_r.src = assets.mapGhost_r;
+gameState.heartImageUI=new Image();
+gameState.heartImageUI.src = assets.heart;
+gameState.heartBrokenImageUI=new Image();
+gameState.heartBrokenImageUI.src = assets.heartBroken;
 
 gameState.sing =function(){
     if (this.mute) {
@@ -136,7 +153,7 @@ gameState.sing =function(){
                 }
             }
         }
-        if (count>4) {
+        if (count>6) {
             assets.sndBg.pause();
             assets.sndBgFast.play();
         } else {
@@ -144,6 +161,7 @@ gameState.sing =function(){
             assets.sndBg.play();
         }
     }
+    
 }
     
 
@@ -203,7 +221,6 @@ gameState.makeGoal = function(spacing) {
 				var minY=obj.position.posVec()[2]+spacing/2.0;
 				var maxX = minX+obj.scale-spacing;
 				var maxY = minY+obj.scale-spacing;
-				if (spacing == undefined) spacing=1.4;
 				for(var i=0; i<100; i++) {
 					var x = Math.random()*(maxX-minX) + minX;
 					var y = Math.random()*(maxY-minY) + minY;
@@ -223,22 +240,73 @@ gameState.makeGoal = function(spacing) {
 					}
 					if (goodPos) {
 						this.addGoal('genGoal',[x,0,y]);
-						return true;
+						return [x,0,y];
 					}
 				}
-				return false;
+				return null;
 			}
 		}
 	}
 }
 
+gameState.randomHutCount=0;
+gameState.makeHut = function(spaceObj,spacing) {
+    if (spacing == undefined) spacing=6.0;
+    var minX=spaceObj.getPosVec()[0]+spacing;
+    var minY=spaceObj.getPosVec()[2]+spacing;
+    var maxX = minX+spaceObj.scale-2*spacing;
+    var maxY = minY+spaceObj.scale-2*spacing;
+    
+    for(var i=0; i<100; i++) {
+        var x = Math.random()*(maxX-minX) + minX;
+        var y = Math.random()*(maxY-minY) + minY;
+        var goodPos=true;
+        for (var ele in gameState.solidObjects) {
+            if (gameState.solidObjects.hasOwnProperty(ele)) {
+                var obj=gameState.solidObjects[ele];
+                if (obj!=null && Math.sqrt(Math.pow(x-obj.position.posVec()[0],2) + Math.pow(y-obj.position.posVec()[2],2))<spacing) {
+                    goodPos=false;
+                    break;
+                }
+            }
+        }
+        if (goodPos) {
+            var vecToCenter = spaceObj.getPosVec().plus([spaceObj.scale/2.0,0,spaceObj.scale/2.0]).minus([x,0,y]);
+            var angleToCenter = 270-(180*Math.atan2(vecToCenter[2],vecToCenter[0])/Math.PI +180);
+            var rot = angleToCenter + Math.random()*180-90;
+            this.addHut('genHut'+(gameState.randomTreeCount++),rot,1,[x,0,y]);
+            return true;
+        }
+    }
+    return false;
+}
+
+gameState.makeHuts = function(count,spacing) {
+    if (spacing == undefined) spacing=6.0;
+    for (var ele in gameState.sceneElements) {
+        if (gameState.sceneElements.hasOwnProperty(ele)) {
+            var obj=gameState.sceneElements[ele];
+            if (obj instanceof FloorObject)
+            {
+                for (var i=0; i<count; i++) {
+                    for (var t=0; t<100; t++) {
+                        if (this.makeHut(obj,spacing))
+                            break;
+                    }
+                }
+            }
+        }
+    }
+}
+
 gameState.randomTreeCount=0;
 gameState.makeTree = function(obj,spacing) {
+    if (spacing == undefined) spacing=1.4;
     var minX=obj.position.posVec()[0]+spacing/2.0;
     var minY=obj.position.posVec()[2]+spacing/2.0;
     var maxX = minX+obj.scale-spacing;
     var maxY = minY+obj.scale-spacing;
-    if (spacing == undefined) spacing=1.4;
+    
     for(var i=0; i<100; i++) {
         var x = Math.random()*(maxX-minX) + minX;
         var y = Math.random()*(maxY-minY) + minY;
@@ -425,6 +493,10 @@ gameState.addTrip = function(name,scale,location) {
     
 }
 
+gameState.addHut = function(name,rotation,scale,location) {
+    this.sceneElements[name]=new Hut(name,this,assets.hutImg,assets.wallObj,rotation,scale,location);              
+}
+
 gameState.loadLevel = function(loc) {
     this.changingLevel=-2;
     var path = window.location.pathname.substring(1)+'levels/';
@@ -443,8 +515,8 @@ gameState.loadLevel = function(loc) {
             myself.collidableObjects = [];
             myself.dying = -1;
             myself.changingLevel=-1;
-            myself.ghostsCountThisLevel=0;
-            
+            myself.ghostsCountOnLevel.push(myself.ghostsCountOnLevel[myself.ghostsCountOnLevel.length-1]);
+            //console.log(myself.ghostsCountOnLevel)
             for (var name in loaded) {
                 if (name==="StartingLocation") 
                     myself.startingLoc= new Vec(loaded[name]);
@@ -476,11 +548,30 @@ gameState.loadLevel = function(loc) {
             
             
             if (loc == 'rand.level') {
-				myself.makeGoal();
-				myself.makeGraves(3/1000.0+(myself.currentLevel-3)/1500.0);
+                if (myself.currentLevel<7) {
+				    myself.makeGoal();
+				} else if (myself.currentLevel==7) {
+				    var goalLoc = myself.makeGoal();
+				    myself.addHut('hut',Math.random()*90-45,1,goalLoc);
+				}
+				else if (myself.currentLevel<10) {
+				    var goalLoc = myself.makeGoal();
+				    myself.addHut('hut',Math.random()*90-45,1,goalLoc);
+				    myself.makeHuts(myself.currentLevel-7);
+				}
+				else {
+				    var goalLoc = myself.makeGoal();
+				    if (Math.random()>0.3)
+				        myself.addHut('hut',Math.random()*90-45,1,goalLoc);
+				    myself.makeHuts(3);
+				}
+				
+				myself.makeGraves(3/1500.0+(myself.currentLevel-3)/3000.0);
 				var treeDensity=Math.min(0.22,myself.currentLevel/50.0);
 				var treeSpacing=treeDensity<0.15?1.4:Math.max(0.7,1.4-(myself.currentLevel-11)/7.14)//l11
 				myself.makeTrees(treeDensity,treeSpacing);
+				
+				
 			}
 			gameState.sing();
           } else {
@@ -495,16 +586,24 @@ gameState.loadLevel = function(loc) {
 }
 
 gameState.restartLevel = function() {
+    if ((this.lives)<1){
+        if (this.currentLevel >= this.levels.length) {
+            this.currentLevel--;
+            this.ghostsCountOnLevel.pop();
+            this.lives=3;
+        }
+    }
     this.loadLevel(this.currentLevelFile);
+    this.ghostsCountOnLevel.pop();
 }
 
 gameState.nextLevel = function() {
-    this.ghostsCount+=this.ghostsCountThisLevel;
-    this.ghostsCountThisLevel=0;
+    //this.ghostsCount+=this.ghostsCountThisLevel;
+    //this.ghostsCountThisLevel=0;
 	if (++this.currentLevel < this.levels.length)
 		this.currentLevelFile = this.levels[this.currentLevel]
     this.changingLevel=0;
-    
+    this.lives=3;
     //this.loadLevel(this.currentLevelFile);
 }
 
@@ -547,7 +646,19 @@ function drawTexturedObjects(objectsToDraw,perspectiveMat) {
     }
 }
 
-function drawMap() {
+function drawUI() {
+    if (gameState.currentLevel >= gameState.levels.length) {
+        //myGL.drawText("Lives: "+(gameState.lives),170, 20);
+        myGL.drawUI(gameState.lives>0? gameState.heartImageUI : gameState.heartBrokenImageUI,
+                            gameState.mapX+gameState.mapSize + 20,20,
+                            gameState.mapSize/5.0,gameState.mapSize/5.0);
+        myGL.drawUI(gameState.lives>1? gameState.heartImageUI : gameState.heartBrokenImageUI,
+                            gameState.mapX+gameState.mapSize + 45,20,
+                            gameState.mapSize/5.0,gameState.mapSize/5.0);
+        myGL.drawUI(gameState.lives>2? gameState.heartImageUI : gameState.heartBrokenImageUI,
+                            gameState.mapX+gameState.mapSize + 70,20,
+                            gameState.mapSize/5.0,gameState.mapSize/5.0);
+    }
     if (gameState.changingLevel>=0 || gameState.dying>=0)
         return;
     var drawing=false;
@@ -605,7 +716,7 @@ function drawMap() {
 	}
 	if (gameState.currentLevel>1) {
         myGL.drawText("Level: "+(gameState.currentLevel),430, 20);
-        myGL.drawText("Ghosts banished: "+(gameState.ghostsCount+gameState.ghostsCountThisLevel),360, 50);
+        myGL.drawText("Ghosts banished: "+(gameState.ghostsCount+gameState.ghostsCountOnLevel[gameState.ghostsCountOnLevel.length-1]),360, 50);
     }
     else if (gameState.currentLevel==0) {
         myGL.drawText("Welcome to",380, 20);
@@ -615,6 +726,7 @@ function drawMap() {
         if (gameState.solidObjects['grave']!=undefined && gameState.solidObjects['grave'].state==1)
             myGL.drawText('touch grave to banish ghost',300, 80);
     }
+    
     //myGL.drawText("mouse: "+(controller.mouseX)+', '+(controller.mouseX));
     //console.log(gameState.mapX+0+gameState.mapSize/2.0 - gameState.mapSize/(6.0*1))
     //myGL.drawUI(gameState.graveImageUI,
@@ -925,7 +1037,7 @@ function webGLStart() {
         }
         drawTexturedObjects(objectsToDraw,perspectiveMat);
         
-        drawMap();
+        drawUI();
         
         //globalDepth = myGL.getDepth();
     }
