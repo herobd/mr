@@ -92,6 +92,7 @@ gameState.currentLevel = -1;
 gameState.currentLevelFile = 'none';
 gameState.ghostsCount = 0;
 gameState.ghostsCountThisLevel = 0;
+gameState.mute=true;
 
 gameState.camera = new SolidObject(null,null,0.3,1,new Vec([0,0,0.3]));
     
@@ -121,21 +122,27 @@ gameState.ghostImageUI_r=new Image();
 gameState.ghostImageUI_r.src = assets.mapGhost_r;
 
 gameState.sing =function(){
-    var count=0;
-    for (var ele in this.solidObjects) {
-        if (this.solidObjects.hasOwnProperty(ele)) {
-            var obj = this.solidObjects[ele];
-            if (obj instanceof Grave) {
-                if (obj.state==1) count++;
+    if (this.mute) {
+        assets.sndBgFast.pause();
+        assets.sndBg.pause();
+    }
+    else {
+        var count=0;
+        for (var ele in this.solidObjects) {
+            if (this.solidObjects.hasOwnProperty(ele)) {
+                var obj = this.solidObjects[ele];
+                if (obj instanceof Grave) {
+                    if (obj.state==1) count++;
+                }
             }
         }
-    }
-    if (count>4) {
-        assets.sndBg.pause();
-        assets.sndBgFast.play();
-    } else {
-        assets.sndBgFast.pause();
-        assets.sndBg.play();
+        if (count>4) {
+            assets.sndBg.pause();
+            assets.sndBgFast.play();
+        } else {
+            assets.sndBgFast.pause();
+            assets.sndBg.play();
+        }
     }
 }
     
