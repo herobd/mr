@@ -2,10 +2,10 @@ CACHE MANIFEST
 #1f686ce9073f8d6fb3fc16a22b95c6f75e39c148
 
 CACHE:
-index.html
-sliding.js
-icon-60.png
-icon-128.png
+#index.html
+#sliding.js
+#icon-60.png
+#icon-128.png
 
 # catch-all for anything else
 NETWORK:

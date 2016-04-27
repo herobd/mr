@@ -29,12 +29,13 @@ function init() {
     var elm = document.getElementById('file');
     var label = document.getElementById('file_label');
     var paused = document.getElementById('paused');
-    var newgame = document.getElementById('newgame');
+    //var newgame = document.getElementById('newgame');
     var restartgame = document.getElementById('restartgame');
 
-    if ('MozActivity' in window) {
-        /* For browsers with Web Activities, i.e. Firefox OS, we show the
-           Web Activities "pick", restricting to images. */
+    puzzle.init('/images/Portrait.JPG');
+    /*if ('MozActivity' in window) {
+        // For browsers with Web Activities, i.e. Firefox OS, we show the
+        //   Web Activities "pick", restricting to images. 
         elm.type = "button";
         elm.value = label.textContent;
         elm.addEventListener('click', function(e) {
@@ -52,29 +53,29 @@ function init() {
         });
         label.style.display = 'none';
     } else {
-        /* The other browsers get the standard <input type=file> */
+        // The other browsers get the standard <input type=file> 
         elm.addEventListener('change', function() {
             if (this.files.length) {
                 puzzle.init(this.files[0]);
             }
         });
-    }
+    }*/
     window.addEventListener('beforeunload', function() {
         puzzle.showPauseScreen();
     });
     paused.addEventListener('mousedown', puzzle.hidePauseScreen);
     paused.addEventListener('touchstart', puzzle.hidePauseScreen);
-    newgame.addEventListener('mousedown', puzzle.newGame);
-    newgame.addEventListener('touchstart', puzzle.newGame);
+    //newgame.addEventListener('mousedown', puzzle.newGame);
+    //newgame.addEventListener('touchstart', puzzle.newGame);
     restartgame.addEventListener('mousedown', puzzle.restartGame);
     restartgame.addEventListener('touchstart', puzzle.restartGame);
-    if (typeof localStorage['puzzleInfos'] !== 'undefined' &&
-        typeof localStorage['puzzleSource'] !== 'undefined' &&
-        typeof localStorage['puzzleTiles'] !== 'undefined') {
-        puzzle.resumeGame();
-    } else {
+    //if (typeof localStorage['puzzleInfos'] !== 'undefined' &&
+    //    typeof localStorage['puzzleSource'] !== 'undefined' &&
+    //    typeof localStorage['puzzleTiles'] !== 'undefined') {
+    //    puzzle.resumeGame();
+    //} else {
         showGui();
-    }
+    //}
 
     window.applicationCache.addEventListener('updateready', function(e) {
         if (window.applicationCache.status == window.applicationCache.UPDATEREADY) {
@@ -238,15 +239,18 @@ Tile.prototype.reposition = function() {
 };
 
 puzzle.init = function(file) {
-    var fileReader = new FileReader();
-    fileReader.onload = function(e) {
+    //var fileReader = new FileReader();
+    //var image = new Image();
+    //image.onload = function(e) {
         // Store file in localStorage to be able to resume game later.
         // FIXME: refuse files too big ?
-        localStorage['puzzleSource'] = e.target.result;
-    };
-    fileReader.readAsDataURL(file);
+    //    localStorage['puzzleSource'] = e.target.result;
+    //};
+    //fileReader.readAsDataURL(file);
+    //image.src=file;
+    localStorage['puzzleSource'] = file;
     puzzle.initVars();
-    puzzle.initElements(window.URL.createObjectURL(file), file.type, function() {
+    puzzle.initElements(file, 'image', function() {
         hideGui();
         puzzle.shuffle();
     });
@@ -308,9 +312,9 @@ puzzle.resumeGame = function() {
     // FIXME: refactor w/ init()
     puzzle.initVars();
     fileURL = localStorage['puzzleSource']
-    start = fileURL.indexOf(':') + 1;
-    end = fileURL.indexOf(';');
-    fileType = fileURL.slice(start, end);
+    //start = fileURL.indexOf(':') + 1;
+    //end = fileURL.indexOf(';');
+    fileType = 'image';//fileURL.slice(start, end);
     puzzle.initElements(fileURL, fileType, function() {
         puzzle.infos = puzzleInfos;
         puzzle.infos.timeSpentPausing += (new Date()).getTime() - puzzle.infos.timePaused;
@@ -408,9 +412,9 @@ puzzle.redraw = function(reposition) {
     if (puzzle.width !== puzzle.height) {
         puzzleOrientation = (puzzle.width / puzzle.height) > 1;
     }
-    if (img.width !== img.height) {
-        imageOrientation = (img.width / img.height) > 1;
-    }
+    //if (img.width !== img.height) {
+    //    imageOrientation = (img.width / img.height) > 1;
+    //}
     if (puzzleOrientation !== null && imageOrientation !== null &&
         imageOrientation !== puzzleOrientation) {
         // If image orientation and puzzle orientation differ - and we are not
