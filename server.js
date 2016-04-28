@@ -3,7 +3,7 @@
 var express = require('express');
 var fs      = require('fs');
 
-
+var redirsFile =  process.env.OPENSHIFT_DATA_DIR +'redirs.json';
 /**
  *  Define the sample application.
  */
@@ -67,7 +67,7 @@ var SampleApp = function() {
      */
     self.terminator = function(sig){
         if (typeof sig === "string") {
-            fs.writeFile('redirs.json', JSON.stringify(self.redirs), function (err) {
+            fs.writeFile(redirsFile, JSON.stringify(self.redirs), function (err) {
               if (err) {
                 console.log('ERROR: '+err);
                 process.exit(1);
@@ -136,6 +136,8 @@ var SampleApp = function() {
         self.routes['/set/:name'] = function(req, res) {
             var name=req.params.name;
             var url=req.query.url;
+		if (url.substr(0,4)!=='http')
+                    url='http://'+url;
             self.redirs[name]=url;
             res.redirect(url);
         };
@@ -150,6 +152,8 @@ var SampleApp = function() {
             } else {
                 var name=req.params.name;
                 var url=req.query.url;
+		if (url.substr(0,4)!=='http')
+                    url='http://'+url;
                 self.redirs[name]=url;
                 res.redirect(url);
             }
@@ -184,9 +188,9 @@ var SampleApp = function() {
         self.setupTerminationHandlers();
         
         //saved redir file
-        fs.exists('redirs.json', function (exists) {
+        fs.exists(redirsFile, function (exists) {
           if (exists) {
-            fs.readFile('redirs.json', function (err, data) {
+            fs.readFile(redirsFile, function (err, data) {
                 if (err) throw err;
                     self.redirs=JSON.parse(data);
             });
