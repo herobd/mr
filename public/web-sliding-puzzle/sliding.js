@@ -82,7 +82,7 @@ function init() {
             // Browser downloaded a new app cache.
             // Swap it in and reload the page to get the new hotness.
             window.applicationCache.swapCache();
-            if (confirm('A new version is available, load it immediately ? (Game progress isn\'t lost)')) {
+            if (confirm('A new version is available, load it immediately ? (Progress isn\'t lost)')) {
                 window.location.reload();
             }
         } else {
