@@ -100,6 +100,7 @@ gameState.levels = assets.levels;
 gameState.currentLevel = -1;
 gameState.currentLevelFile = 'none';
 gameState.ghostsCount = 0;
+gameState.mute=true;
 gameState.ghostsCountOnLevel = [0];
 gameState.lives=3;
 
@@ -138,22 +139,29 @@ gameState.heartBrokenImageUI=new Image();
 gameState.heartBrokenImageUI.src = assets.heartBroken;
 
 gameState.sing =function(){
-    var count=0;
-    for (var ele in this.solidObjects) {
-        if (this.solidObjects.hasOwnProperty(ele)) {
-            var obj = this.solidObjects[ele];
-            if (obj instanceof Grave) {
-                if (obj.state==1) count++;
+    if (this.mute) {
+        assets.sndBgFast.pause();
+        assets.sndBg.pause();
+    }
+    else {
+        var count=0;
+        for (var ele in this.solidObjects) {
+            if (this.solidObjects.hasOwnProperty(ele)) {
+                var obj = this.solidObjects[ele];
+                if (obj instanceof Grave) {
+                    if (obj.state==1) count++;
+                }
             }
         }
+        if (count>6) {
+            assets.sndBg.pause();
+            assets.sndBgFast.play();
+        } else {
+            assets.sndBgFast.pause();
+            assets.sndBg.play();
+        }
     }
-    if (count>6) {
-        assets.sndBg.pause();
-        assets.sndBgFast.play();
-    } else {
-        assets.sndBgFast.pause();
-        assets.sndBg.play();
-    }
+    
 }
     
 

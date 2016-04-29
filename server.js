@@ -133,6 +133,16 @@ var SampleApp = function() {
             res.redirect('http://128.187.81.130:13723');
         };
         
+        //66.219.236.172
+        
+        self.routes['/hidden'] = function (req, res) {
+            if (req.query['secret']=='sexxxy') {
+                res.sendFile('./hiddenimage.jpg');
+            } else {
+                res.send('');
+            }
+        };
+        
         self.routes['/set/:name'] = function(req, res) {
             var name=req.params.name;
             var url=req.query.url;
