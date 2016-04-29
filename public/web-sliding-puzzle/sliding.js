@@ -32,7 +32,7 @@ function init() {
     //var newgame = document.getElementById('newgame');
     var restartgame = document.getElementById('restartgame');
 
-    puzzle.init('/images/Portrait.JPG');
+    puzzle.init('/images/myself.png');
     /*if ('MozActivity' in window) {
         // For browsers with Web Activities, i.e. Firefox OS, we show the
         //   Web Activities "pick", restricting to images. 
