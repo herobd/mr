@@ -696,9 +696,11 @@ Grave.prototype.seen = function(calling) {
             }
         }
         this.texture=this.onTexture;
-        this.gameStateRef.sing();
-        this.sndUp.currentTime=0;
-        this.sndUp.play();
+        if (!this.gameStateRef.mute) {
+            this.gameStateRef.sing();
+            this.sndUp.currentTime=0;
+            this.sndUp.play();
+        }
     }
 }
 Grave.prototype.activate = function() {
@@ -713,9 +715,11 @@ Grave.prototype.activate = function() {
             }
         }
         this.texture=this.offTexture;
-        this.gameStateRef.sing();
-        this.sndDown.currentTime=0;
-        this.sndDown.play();
+        if (!this.gameStateRef.mute) {
+            this.gameStateRef.sing();
+            this.sndDown.currentTime=0;
+            this.sndDown.play();
+        }
         
     }
 }
@@ -758,7 +762,8 @@ function Goal(gameStateRef,goalImg,goalObj,sound,scale,positionMatrix,owner) {
 Goal.prototype = Object.create(SolidObject.prototype);
 Goal.prototype.constructor = Goal;
 Goal.prototype.activate = function() {
-    this.sound.play();
+    if (!this.gameStateRef.mute) 
+        this.sound.play();
     this.gameStateRef.nextLevel();
 }
 Goal.prototype.animate = function(elapsed) {
