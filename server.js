@@ -135,11 +135,15 @@ var SampleApp = function() {
         
         //66.219.236.172
         
-        self.routes['/hidden'] = function (req, res) {
+        self.routes['/hidden.jpg'] = function (req, res) {
             if (req.query['secret']=='sexxxy') {
-                res.sendFile('./hiddenimage.jpg');
+                //res.sendFile('hiddenimage.jpg');
+                fs.readFile('hiddenimage.jpg', function(img) {
+                    res.writeHead(200, {'Content-Type': 'image/jpeg' });
+                    res.end(img, 'binary');
+                });
             } else {
-                res.send('');
+                res.send('error');
             }
         };
         
