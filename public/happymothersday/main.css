@@ -1,0 +1,42 @@
+body {
+	background: url("wildflowers.jpg") no-repeat center center fixed;
+	background-size: cover;
+	
+}
+
+#cont {
+    width:100%;
+    height:100%;
+    
+}
+#quote {
+    display: inline-block;
+    
+    font: 200 70px/0.8 'Great Vibes', Helvetica, sans-serif;
+    color: #f0f0f0;
+    text-shadow: 4px 4px 3px rgba(0,0,0,0.1); 
+    
+    background-color:rgba(0, 0, 0, 0.2);
+    padding: 20px 10px;
+}
+
+#quote span {
+    font-family: Georgia, Serif;
+    font-size:20px;
+}
+
+#letter {
+    width:80%;
+    display: inline-block;
+    
+    color: #202020;
+    font-family: Georgia, Serif;
+    font-size:18px;
+    
+    background-color:rgba(255, 255, 255, 0.45);
+    padding: 40px;
+    
+    text-align:left;
+}
+
+
