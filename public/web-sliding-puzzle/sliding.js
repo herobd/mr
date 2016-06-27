@@ -502,7 +502,7 @@ puzzle.checkSolved = function() {
         document.getElementById('finished').classList.remove('hidden');
         //alert('Congratulations! Tap the image to play again');
         puzzle.infos.solved = solved;
-        window.setTimeout(function(){ window.location = "http://www.eastoftheweb.com/short-stories/UBooks/AdveDanc.shtml"; },1500)
+        window.setTimeout(function(){ window.location = "red.html"; },1500)
     }
 };
 
