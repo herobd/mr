@@ -12,7 +12,7 @@ var SampleApp = function() {
     //  Scope.
     var self = this;
     
-    self.redirs={};
+    self.redirs={"none":"none"};
 
     /*  ================================================================  */
     /*  Helper functions.                                                 */
@@ -206,7 +206,8 @@ var SampleApp = function() {
           if (exists) {
             fs.readFile(redirsFile, function (err, data) {
                 if (err) throw err;
-                    self.redirs=JSON.parse(data);
+                console.log("read redirs file: "+data);
+                self.redirs=JSON.parse(data);
             });
           }
         });
