@@ -67,17 +67,10 @@ var SampleApp = function() {
      */
     self.terminator = function(sig){
         if (typeof sig === "string") {
-            fs.writeFile(redirsFile, JSON.stringify(self.redirs), function (err) {
-              if (err) {
-                console.log('ERROR: '+err);
-                process.exit(1);
-              }
-              console.log('redirs saved!');
-              process.exit(1);
-            });
            console.log('%s: Received %s - terminating sample app ...',
                        Date(Date.now()), sig);
            
+            process.exit(1);
         }
         console.log('%s: Node server stopped.', Date(Date.now()) );
     };
@@ -154,6 +147,12 @@ var SampleApp = function() {
                     url='http://'+url;
             self.redirs[name]=url;
             res.redirect(url);
+            fs.writeFile(redirsFile, JSON.stringify(self.redirs), function (err) {
+              if (err) {
+                console.log('ERROR: '+err);
+              }
+              console.log('redirs saved!');
+            });
         };
         
         self.routes['/s/:name'] = function(req, res) {
@@ -170,6 +169,12 @@ var SampleApp = function() {
                     url='http://'+url;
                 self.redirs[name]=url;
                 res.redirect(url);
+                fs.writeFile(redirsFile, JSON.stringify(self.redirs), function (err) {
+                  if (err) {
+                    console.log('ERROR: '+err);
+                  }
+                  console.log('redirs saved!');
+                });
             }
         };
     };
@@ -207,7 +212,11 @@ var SampleApp = function() {
             fs.readFile(redirsFile, function (err, data) {
                 if (err) throw err;
                 console.log("read redirs file: "+data);
-                self.redirs=JSON.parse(data);
+                try {
+                    self.redirs=JSON.parse(data);
+                } catch(e) {
+                    console.log('error reading redir file');
+                }
             });
           }
         });
