@@ -145,6 +145,8 @@ var SampleApp = function() {
         };
 
         self.routes['/sourceCounter'] = function(res,res) {
+             if (req.query.clear)
+                 self.sourceCounter={};
              var toSend = '<h>Source counter</h><br>';
              for (var source in self.sourceCounter) {
                  if (self.sourceCounter.hasOwnProperty(source)) {
