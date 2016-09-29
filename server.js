@@ -144,7 +144,7 @@ var SampleApp = function() {
             }
         };
 
-        self.routes['/sourceCounter'] = function(res,res) {
+        self.routes['/sourceCounter'] = function(req,res) {
              if (req.query.clear)
                  self.sourceCounter={};
              var toSend = '<h>Source counter</h><br>';
