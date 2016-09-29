@@ -4,6 +4,7 @@ var express = require('express');
 var fs      = require('fs');
 
 var redirsFile =  process.env.OPENSHIFT_DATA_DIR +'redirs.json';
+var sourceCounterFile =  process.env.OPENSHIFT_DATA_DIR +'sourceCounter.json';
 /**
  *  Define the sample application.
  */
@@ -13,7 +14,7 @@ var SampleApp = function() {
     var self = this;
     
     self.redirs={"none":"none"};
-
+    self.sourceCounter={};
     /*  ================================================================  */
     /*  Helper functions.                                                 */
     /*  ================================================================  */
@@ -125,6 +126,33 @@ var SampleApp = function() {
         self.routes['/app'] = function(req, res) {
             res.redirect('http://128.187.81.130:13723');
         };
+        self.routes['/cattss'] = function(req, res) {
+            res.redirect('http://128.187.81.130:13723');
+            if (req.query.source) {
+                if (self.sourceCounter.hasOwnProperty(req.query.source)) {
+                    if (self.sourceCounter[req.query.source]++ % 2==0) {
+                        fs.writeFile(sourceCounterFile, JSON.stringify(self.sourceCounter), function (err) {
+                          if (err) {
+                            console.log('ERROR saving sourceCounter: '+err);
+                          }
+                          console.log('sourceCounter saved!');
+                        });
+                    }
+                } else
+                    self.sourceCounter[req.query.source]=1;
+                console.log(self.sourceCounter);
+            }
+        };
+
+        self.routes['/sourceCounter'] = function(res,res) {
+             var toSend = '<h>Source counter</h><br>';
+             for (var source in self.sourceCounter) {
+                 if (self.sourceCounter.hasOwnProperty(source)) {
+                     toSend += '<br>'+source+': '+self.sourceCounter[source];
+                 }
+             }
+             res.send(toSend);
+        }
         
         //66.219.236.172
         
@@ -216,6 +244,19 @@ var SampleApp = function() {
                     self.redirs=JSON.parse(data);
                 } catch(e) {
                     console.log('error reading redir file');
+                }
+            });
+          }
+        });
+        fs.exists(sourceCounterFile, function (exists) {
+          if (exists) {
+            fs.readFile(sourceCounterFile, function (err, data) {
+                if (err) throw err;
+                console.log("read sourceCounter file: "+data);
+                try {
+                    self.sourceCounter=JSON.parse(data);
+                } catch(e) {
+                    console.log('error reading sourceCounter file');
                 }
             });
           }
