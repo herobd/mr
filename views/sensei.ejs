@@ -4,14 +4,20 @@
 <title>Sensei status</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="default.css" rel="stylesheet" type="text/css" />
 
 </head>
 <body>
 
-
-<% for (var name in status){ %>
-<div class="entry"> <span class="time"><%= status[name]["time"] %></span> <span class="name"><%= name %><\span> <span class="message"><%= status[name]["message"] %><\span> </div>
+    <table>
+<% for (var s in status){ %>
+<!--div class="entry"> <span class="time"><%= status[name]["time"] %></span> <span class="name"><%= name %><\span> <span class="message"><%= status[name]["message"] %><\span> </div --!>
+    <tr class="<%= s[3] %>" >
+    <th><%= s[0] %></th>
+    <th><%= s[1] %></th>
+    <th><%= s[2] %></th>
+    </tr>
 <% } %>
-
+</table>
 </body>
 </html>
