@@ -127,6 +127,7 @@ var SampleApp = function() {
                 }
                 ordered_sensei_status.push([ Date(p[0]), p[1], self.sensei_status[p[1]],clas])
             }
+            console.log(ordered_sensei_status)
             res.render('sensei', {status:ordered_sensei_status});
             //res.setHeader('Content-Type', 'text/html');
             //res.send(self.cache_get('index.html') );

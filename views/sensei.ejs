@@ -10,11 +10,11 @@
 <body>
 
     <table>
-<% for (var s in status){ %>
-        <tr class="<%= s[3] %>" >
-            <th><%= s[0] %></th>
-            <th><%= s[1] %></th>
-            <th><%= s[2] %></th>
+<% for (var entry in status){ %>
+        <tr class="<%= entry[3] %>" >
+            <th><%= entry[0] %></th>
+            <th><%= entry[1] %></th>
+            <th><%= entry[2] %></th>
         </tr>
 <% } %>
     </table>
