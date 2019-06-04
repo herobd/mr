@@ -113,7 +113,6 @@ var SampleApp = function() {
         };
 
         self.routes['/'] = function(req, res) {
-            self.lastChecked = Date.now()
             var tosort=[];
             for (var name in self.sensei_status) {
                 tosort.push([self.sensei_status[name]['time'],name])
@@ -127,10 +126,11 @@ var SampleApp = function() {
                 }
                 ordered_sensei_status.push([ Date(p[0]), p[1], self.sensei_status[p[1]]['message'],clas])
             }
-            console.log(ordered_sensei_status)
+            //console.log(ordered_sensei_status)
             res.render('sensei', {status:ordered_sensei_status});
             //res.setHeader('Content-Type', 'text/html');
             //res.send(self.cache_get('index.html') );
+            self.lastChecked = Date.now()
         };
         self.routes['/projects'] = function(req, res) {
             res.setHeader('Content-Type', 'text/html');
@@ -211,7 +211,7 @@ var SampleApp = function() {
             //res.redirect(url);
             res.setHeader('Content-Type', 'text/plain');
             res.send('ok');
-            console.log(self.sensei_status)
+            //console.log(self.sensei_status)
             fs.writeFile(senseiFile, JSON.stringify(self.sensei_status), function (err) {
               if (err) {
                 console.log('ERROR: '+err);
@@ -284,6 +284,19 @@ var SampleApp = function() {
                     self.redirs=JSON.parse(data);
                 } catch(e) {
                     console.log('error reading redir file');
+                }
+            });
+          }
+        });
+        fs.exists(senseiFile, function (exists) {
+          if (exists) {
+            fs.readFile(senseiFile, function (err, data) {
+                if (err) throw err;
+                console.log("read sensei file: "+data);
+                try {
+                    self.sensei_status=JSON.parse(data);
+                } catch(e) {
+                    console.log('error reading sensei file');
                 }
             });
           }
