@@ -11,13 +11,12 @@
 
     <table>
 <% for (var s in status){ %>
-<!--div class="entry"> <span class="time"><%= status[name]["time"] %></span> <span class="name"><%= name %><\span> <span class="message"><%= status[name]["message"] %><\span> </div --!>
-    <tr class="<%= s[3] %>" >
-    <th><%= s[0] %></th>
-    <th><%= s[1] %></th>
-    <th><%= s[2] %></th>
-    </tr>
+        <tr class="<%= s[3] %>" >
+            <th><%= s[0] %></th>
+            <th><%= s[1] %></th>
+            <th><%= s[2] %></th>
+        </tr>
 <% } %>
-</table>
+    </table>
 </body>
 </html>
