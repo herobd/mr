@@ -117,6 +117,7 @@ var SampleApp = function() {
             var tosort=[];
             for (var name in self.sensei_status) {
                 tosort.push([self.sensei_status[name]['time'],name])
+            }
             tosort.sort(function(a,b){return b[0]-a[0]});
             var ordered_sensei_status=[];
             for (p of tosort) {
@@ -125,6 +126,7 @@ var SampleApp = function() {
                     clas='new';
                 }
                 ordered_sensei_status.push([ Date(p[0]), p[1], self.sensei_status[p[1]],clas])
+            }
             res.render('sensei', {status:ordered_sensei_status});
             //res.setHeader('Content-Type', 'text/html');
             //res.send(self.cache_get('index.html') );
