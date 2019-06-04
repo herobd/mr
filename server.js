@@ -26,7 +26,7 @@ var SampleApp = function() {
     self.setupVariables = function() {
         //  Set the environment variables we need.
         self.ipaddress = '0.0.0.0';//process.env.OPENSHIFT_NODEJS_IP;
-        self.port      = 80;//process.env.OPENSHIFT_NODEJS_PORT || 8080;
+        self.port      = process.env.PORT;//process.env.OPENSHIFT_NODEJS_PORT || 8080;
 
         if (typeof self.ipaddress === "undefined") {
             //  Log errors on OpenShift but continue w/ 127.0.0.1 - this
