@@ -125,7 +125,7 @@ var SampleApp = function() {
                 if (p[0]>self.lastChecked){
                     clas='new';
                 }
-                ordered_sensei_status.push([ Date(p[0]), p[1], self.sensei_status[p[1]],clas])
+                ordered_sensei_status.push([ Date(p[0]), p[1], self.sensei_status[p[1]]['message'],clas])
             }
             console.log(ordered_sensei_status)
             res.render('sensei', {status:ordered_sensei_status});
