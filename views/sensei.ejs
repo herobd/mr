@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Sensei status</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+</head>
+<body>
+
+
+<% for (var name in status){ %>
+<div class="entry"> <span class="time"><%= status[name]["time"] %></span> <span class="name"><%= name %><\span> <span class="message"><%= status[name]["message"] %><\span> </div>
+<% } %>
+
+</body>
+</html>

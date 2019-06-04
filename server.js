@@ -3,9 +3,10 @@
 var express = require('express');
 var fs      = require('fs');
 
-var redirsFile =  process.env.OPENSHIFT_DATA_DIR +'redirs.json';
-var sourceCounterFile =  process.env.OPENSHIFT_DATA_DIR +'sourceCounter.json';
-console.log(process.env)
+var redirsFile =  process.env.HOME +'/redirs.json';
+var senseiFile =  process.env.HOME +'/sensei.json';
+var sourceCounterFile =  process.env.HOME +'/sourceCounter.json';
+//console.log(process.env)
 /**
  *  Define the sample application.
  */
@@ -16,6 +17,7 @@ var SampleApp = function() {
     
     self.redirs={"none":"none"};
     self.sourceCounter={};
+    self.sensei_status={}
     /*  ================================================================  */
     /*  Helper functions.                                                 */
     /*  ================================================================  */
@@ -110,8 +112,9 @@ var SampleApp = function() {
         };
 
         self.routes['/'] = function(req, res) {
-            res.setHeader('Content-Type', 'text/html');
-            res.send(self.cache_get('index.html') );
+            res.render('sensei', {status:self.sensei_status}
+            //res.setHeader('Content-Type', 'text/html');
+            //res.send(self.cache_get('index.html') );
         };
         self.routes['/projects'] = function(req, res) {
             res.setHeader('Content-Type', 'text/html');
@@ -185,6 +188,21 @@ var SampleApp = function() {
               console.log('redirs saved!');
             });
         };
+        self.routes['/sensei-update/:name'] = function(req, res) {
+            var name=req.params.name;
+            var message=req.query.message;
+            self.sensei_status[name]={'message':message, 'time':Date(Date.now() )};
+            //res.redirect(url);
+            res.setHeader('Content-Type', 'text/plain');
+            res.send('ok');
+            console.log(self.sensei_status)
+            fs.writeFile(senseiFile, JSON.stringify(self.sensei_status), function (err) {
+              if (err) {
+                console.log('ERROR: '+err);
+              }
+              console.log('sensei saved!');
+            });
+        };
         
         self.routes['/s/:name'] = function(req, res) {
             if (req.query.url === undefined)
@@ -219,6 +237,8 @@ var SampleApp = function() {
         self.createRoutes();
         //self.app = express.createServer();
         self.app = express();
+        self.app.set('views', __dirname + '/views');
+        self.app.set('view engine', 'ejs');
 
         //  Add handlers for the app (from the routes).
         for (var r in self.routes) {
