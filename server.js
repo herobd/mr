@@ -216,12 +216,7 @@ var SampleApp = function() {
             res.setHeader('Content-Type', 'text/plain');
             res.send('ok');
             //console.log(self.sensei_status)
-            fs.writeFile(senseiFile, JSON.stringify(self.sensei_status), function (err) {
-              if (err) {
-                console.log('ERROR: '+err);
-              }
-              console.log('sensei saved!');
-            });
+            self.save(self.sensei_status)
         };
         
         self.routes['/s/:name'] = function(req, res) {
@@ -332,7 +327,7 @@ var SampleApp = function() {
         self.get_saved(function(item){self.sensei_status=item;});
 
         //test
-        self.save({'test':'tesest'}, function(){self,get_saved(function(item){console.log('read '+item);})});
+        self.save({'test':'tesest'}, function(){self.get_saved(function(item){console.log('read '+item);})});
 
         
         //saved redir file
