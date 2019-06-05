@@ -274,8 +274,6 @@ var SampleApp = function() {
                 //console.log("Connected successfully to server");
 
                 const db = self.mongo_client.db(dbname);
-                console.log(db)
-                console.log(db.collection)
                 db.collection('status', function(err, collection) {
                     if(!err) {
                         collection.findOne({name: 'status'}, function(err, item) {
@@ -302,11 +300,11 @@ var SampleApp = function() {
         });
     };
     self.save = function(value,callback) {
-        self.mongo_client.connect(function(err,db) {
+        self.mongo_client.connect(function(err) {
             if (!err) {
                 //console.log("Connected successfully to server");
 
-                //const db = client.db(dbnName);
+                const db = self.mongo_client.db(dbname);
 
                 db.collection('status', function(err, collection) {
                     if(!err) {
