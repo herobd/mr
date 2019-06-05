@@ -269,11 +269,11 @@ var SampleApp = function() {
         self.app.use(express.static('public'));
     };
     self.get_saved = function(callback) {
-        self.mongo_client.connect(function(err,db) {
+        self.mongo_client.connect(function(err) {
             if (!err) {
                 //console.log("Connected successfully to server");
 
-                //const db = client.db(dbnName);
+                const db = self.mongo_client.db(dbname);
                 console.log(db)
                 console.log(db.collection)
                 db.collection('status', function(err, collection) {
