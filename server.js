@@ -9,7 +9,7 @@ var senseiFile =  process.env.HOME +'/sensei.json';
 var sourceCounterFile =  process.env.HOME +'/sourceCounter.json';
 
 var mongolab = 'mongodb://heroku_vhwr6c7j:qbm5rn0ibpqkjamponccqpatil@ds233167.mlab.com:33167/heroku_vhwr6c7j'
-vad dbname = 'heroku_vhwr6c7j'
+var dbname = 'heroku_vhwr6c7j'
 //console.log(process.env)
 /**
  *  Define the sample application.
