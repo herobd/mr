@@ -327,7 +327,12 @@ var SampleApp = function() {
         self.get_saved(function(item){self.sensei_status=item;});
 
         //test
-        self.save({'test':'tesest'}, function(){self.get_saved(function(item){console.log('read '+item);})});
+        self.save({'test':'tesest'}, function(){self.get_saved(function(item){
+            console.log('read: ');
+            for (var nn in item){
+                console.log(nn + ' : ' +item[nn]);
+            }
+        })});
 
         
         //saved redir file
