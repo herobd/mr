@@ -1,4 +1,5 @@
 #!/bin/env node
+const MongoClient = require('mongodb').MongoClient;
 //  OpenShift sample Node application
 var express = require('express');
 var fs      = require('fs');
@@ -6,6 +7,9 @@ var fs      = require('fs');
 var redirsFile =  process.env.HOME +'/redirs.json';
 var senseiFile =  process.env.HOME +'/sensei.json';
 var sourceCounterFile =  process.env.HOME +'/sourceCounter.json';
+
+var mongolab = 'mongodb://heroku_vhwr6c7j:qbm5rn0ibpqkjamponccqpatil@ds233167.mlab.com:33167/heroku_vhwr6c7j'
+vad dbname = 'heroku_vhwr6c7j'
 //console.log(process.env)
 /**
  *  Define the sample application.
@@ -264,7 +268,58 @@ var SampleApp = function() {
         // Static file (images, css, etc)
         self.app.use(express.static('public'));
     };
+    self.get_saved = function(callback) {
+        self.mongo_client.connect(function(err,db) {
+            if (!err) {
+                //console.log("Connected successfully to server");
 
+                //const db = client.db(dbnName);
+
+                db.collection('status', function(err, collection) {
+                    if(!err) {
+                        collection.findOne({name: 'status'}, function(err, item) {
+                            //item.update({userId:info.userId, batchId:info.batchId},{$set:info},{w:1}, callback);
+                            if (!err) {
+                                self.mongo_client.close();
+                                if (item!=null){
+                                    callback(item['value'])
+                                }
+                                else {callback({})}
+                            } else {
+                                console.log('Error findOne '+err)
+                                callback({})
+                            }
+                        });
+                    } else {
+                        self.mongo_client.close();
+                        console.log('Error collection ' + err)
+                    }
+                });
+            } else {
+                console.log('Error connect: '+err)
+            }
+        });
+    };
+    self.save = function(value,callback) {
+        self.mongo_client.connect(function(err,db) {
+            if (!err) {
+                //console.log("Connected successfully to server");
+
+                //const db = client.db(dbnName);
+
+                db.collection('status', function(err, collection) {
+                    if(!err) {
+                        collection.update({name:'status'},{$set:{name:'status',value:value}},{w:1,upsert:true}, callback);
+                    } else {
+                        self.mongo_client.close();
+                        console.log('Error collection ' + err)
+                    }
+                });
+            } else {
+                console.log('Error connect: '+err)
+            }
+        });
+    };
 
     /**
      *  Initializes the sample application.
@@ -273,6 +328,13 @@ var SampleApp = function() {
         self.setupVariables();
         self.populateCache();
         self.setupTerminationHandlers();
+
+        self.mongo_client = new MongoClient(mongolab);
+        self.get_saved(function(item){self.sensei_status=item;});
+
+        //test
+        self.save({'test':'tesest'}, function(){self,get_saved(function(item){console.log('read '+item);})});
+
         
         //saved redir file
         fs.exists(redirsFile, function (exists) {
@@ -284,19 +346,6 @@ var SampleApp = function() {
                     self.redirs=JSON.parse(data);
                 } catch(e) {
                     console.log('error reading redir file');
-                }
-            });
-          }
-        });
-        fs.exists(senseiFile, function (exists) {
-          if (exists) {
-            fs.readFile(senseiFile, function (err, data) {
-                if (err) throw err;
-                console.log("read sensei file: "+data);
-                try {
-                    self.sensei_status=JSON.parse(data);
-                } catch(e) {
-                    console.log('error reading sensei file');
                 }
             });
           }
