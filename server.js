@@ -377,7 +377,7 @@ var SampleApp = function() {
         //    }
         //})});
 
-        self.database=new Database(mongolab, function(database) {
+        self.database=new Database(mongolab,dbname, function(database) {
             console.log('Database connected!');
         });
 

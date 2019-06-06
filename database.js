@@ -7,7 +7,7 @@ module.exports =  function() {
    34,435,1,0,7,65,4,830,644,5,7,9,6,44,6,8,5,544,5,7,88,456,6,54,5,77,45624,456,6,5];
    var fs = require('fs');
    var ObjectID = require('mongodb').ObjectID;
-    function Database(address,dataNames,callback) {
+    function Database(address,dbname,callback) {
         
         var self=this;
         
@@ -16,7 +16,8 @@ module.exports =  function() {
         // Connect to the db (localhost:27017/exampleDb)
         self.mongo.connect("mongodb://"+address, function(err, db) {
           if(!err) {
-            self.db=db;
+            //self.db=db;
+            self.db=self.mongo.db(dbname);
             console.log("We are connected to the database.");
             var numCol=1+5*dataNames.length;
 
