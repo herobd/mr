@@ -216,7 +216,6 @@ var SampleApp = function() {
             var name=req.params.name;
             var message=req.query.message;
             self.sensei_status[name]={'message':message, 'time':Date.now()};
-            self.save(self.sensei_status,function(){})
             //res.redirect(url);
             res.setHeader('Content-Type', 'text/plain');
             res.send('ok');
@@ -299,7 +298,7 @@ var SampleApp = function() {
             }
         });
     };
-    self.save = function(value,callback) {
+    self.save = function(value) {
         self.mongo_client.connect(function(err) {
             if (!err) {
                 //console.log("Connected successfully to server");
@@ -308,7 +307,7 @@ var SampleApp = function() {
 
                 db.collection('status', function(err, collection) {
                     if(!err) {
-                        collection.update({name:'status'},{$set:{name:'status',value:value}},{w:1,upsert:true}, function() {self.mongo_client.close(); callback()});
+                        collection.update({name:'status'},{$set:{name:'status',value:value}},{w:1,upsert:true}, function() {self.mongo_client.close();});
                     } else {
                         self.mongo_client.close();
                         console.log('Error collection ' + err)
