@@ -56,7 +56,7 @@ module.exports =  function() {
             } else if (doc != null) {
                 ret.push(doc)
             } else {
-                callback(err,doc)
+                callback(err,ret)
             }
         });
     }
