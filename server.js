@@ -122,6 +122,7 @@ var SampleApp = function() {
                 if (err) {
                     console.log('Error on allStatus: '+err)
                 }
+                console.log(items);
                 //self.sensei_status=item; 
                 var tosort=items;
                 //for (var name in self.sensei_status) {
@@ -227,6 +228,7 @@ var SampleApp = function() {
             //self.save(self.sensei_status)
             s = {'name':name, 'message':message, 'time':Date.now()};
             self.database.updateStatus(s,function(err){
+                console.log(s)
                 if (err) {
                     self.warn += '['+name+', '+message + ']: '+err+'\n';
                     console.log(err)
