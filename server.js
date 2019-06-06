@@ -119,6 +119,9 @@ var SampleApp = function() {
         self.routes['/'] = function(req, res) {
             //self.get_saved(function(item){
             self.database.allStatus( function(err,items) {
+                if (err) {
+                    console.log('Error on allStatus: '+err)
+                }
                 //self.sensei_status=item; 
                 var tosort=items;
                 //for (var name in self.sensei_status) {
