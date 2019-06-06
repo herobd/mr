@@ -37,11 +37,11 @@ module.exports =  function() {
 
 
     Database.prototype.updateStatus = function (statusInfo,callback)  {
-        this.userCollection.update({name:statusInfo.name},statusInfo, {upsert:1, w:1}, callback);
+        this.statusCollection.update({name:statusInfo.name},statusInfo, {upsert:1, w:1}, callback);
     }
     Database.prototype.findStatus = function (name,callback) {
         var self=this;
-        self.userCollection.findOne({name:name}, function(err, item) {
+        self.statusCollection.findOne({name:name}, function(err, item) {
             callback(err,item);
         });
     }
