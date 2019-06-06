@@ -47,6 +47,7 @@ module.exports =  function() {
     }
 
     Database.prototype.allStatus = function(callback) {
+        var self=this;
         ret = []
         var cursor = self.statusCollection.find({});
         cursor.each(function(err, doc) {
