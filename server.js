@@ -1,5 +1,4 @@
 #!/bin/env node
-const MongoClient = require('mongodb').MongoClient;
 //  OpenShift sample Node application
 var express = require('express');
 var fs      = require('fs');
@@ -8,7 +7,8 @@ var redirsFile =  process.env.HOME +'/redirs.json';
 var senseiFile =  process.env.HOME +'/sensei.json';
 var sourceCounterFile =  process.env.HOME +'/sourceCounter.json';
 
-var mongolab = 'mongodb://heroku_vhwr6c7j:qbm5rn0ibpqkjamponccqpatil@ds233167.mlab.com:33167/heroku_vhwr6c7j'
+var Database = require('./database')();
+var mongolab = 'heroku_vhwr6c7j:qbm5rn0ibpqkjamponccqpatil@ds233167.mlab.com:33167/heroku_vhwr6c7j'
 var dbname = 'heroku_vhwr6c7j'
 //console.log(process.env)
 /**
@@ -117,20 +117,21 @@ var SampleApp = function() {
         };
 
         self.routes['/'] = function(req, res) {
-            self.get_saved(function(item){
-                self.sensei_status=item; 
-                var tosort=[];
-                for (var name in self.sensei_status) {
-                    tosort.push([self.sensei_status[name]['time'],name])
-                }
-                tosort.sort(function(a,b){return b[0]-a[0]});
+            //self.get_saved(function(item){
+            self.database.allStatus( function(err,items) {
+                //self.sensei_status=item; 
+                var tosort=items;
+                //for (var name in self.sensei_status) {
+                //    tosort.push([self.sensei_status[name]['time'],name])
+                //}
+                tosort.sort(function(a,b){return b['time']-a['time']});
                 var ordered_sensei_status=[];
                 for (p of tosort) {
                     clas = 'old';
-                    if (p[0]>self.lastChecked){
+                    if (p['time']>self.lastChecked){
                         clas='new';
                     }
-                    ordered_sensei_status.push([ Date(p[0]), p[1], self.sensei_status[p[1]]['message'],clas])
+                    ordered_sensei_status.push([ Date(p['time']), p['name'], p['message'],clas])
                 }
                 //console.log(ordered_sensei_status)
                 res.render('sensei', {status:ordered_sensei_status});
@@ -215,12 +216,19 @@ var SampleApp = function() {
         self.routes['/sensei-update/:name'] = function(req, res) {
             var name=req.params.name;
             var message=req.query.message;
-            self.sensei_status[name]={'message':message, 'time':Date.now()};
+            //self.sensei_status[name]={'message':message, 'time':Date.now()};
             //res.redirect(url);
             res.setHeader('Content-Type', 'text/plain');
             res.send('ok');
             //console.log(self.sensei_status)
-            self.save(self.sensei_status)
+            //self.save(self.sensei_status)
+            s = {'name':name, 'message':message, 'time':Date.now()};
+            self.database.updateStatus(s,function(err){
+                if (err) {
+                    self.warn += '['+name+', '+message + ']: '+err+'\n';
+                    console.log(err)
+                }
+            });
         };
         
         self.routes['/s/:name'] = function(req, res) {
@@ -267,6 +275,37 @@ var SampleApp = function() {
         // Static file (images, css, etc)
         self.app.use(express.static('public'));
     };
+    //self.get_saved = function(callback) {
+    //    self.mongo_client.connect(function(err) {
+    //        if (!err) {
+    //            //console.log("Connected successfully to server");
+
+    //            const db = self.mongo_client.db(dbname);
+    //            db.collection('status', function(err, collection) {
+    //                if(!err) {
+    //                    collection.findOne({name: 'status'}, function(err, item) {
+    //                        //item.update({userId:info.userId, batchId:info.batchId},{$set:info},{w:1}, callback);
+    //                        if (!err) {
+    //                            self.mongo_client.close();
+    //                            if (item!=null){
+    //                                callback(item['value'])
+    //                            }
+    //                            else {callback({})}
+    //                        } else {
+    //                            console.log('Error findOne '+err)
+    //                            callback({})
+    //                        }
+    //                    });
+    //                } else {
+    //                    self.mongo_client.close();
+    //                    console.log('Error collection ' + err)
+    //                }
+    //            });
+    //        } else {
+    //            console.log('Error connect: '+err)
+    //        }
+    //    });
+    //};
     self.get_saved = function(callback) {
         self.mongo_client.connect(function(err) {
             if (!err) {
@@ -327,8 +366,8 @@ var SampleApp = function() {
         self.populateCache();
         self.setupTerminationHandlers();
 
-        self.mongo_client = new MongoClient(mongolab);
-        self.get_saved(function(item){self.sensei_status=item;});
+        //self.mongo_client = new MongoClient(mongolab);
+        //self.get_saved(function(item){self.sensei_status=item;});
 
         //test
         //self.save({'test':'tesest'}, function(){self.get_saved(function(item){
@@ -337,6 +376,10 @@ var SampleApp = function() {
         //        console.log(nn + ' : ' +item[nn]);
         //    }
         //})});
+
+        self.database=new Database(mongolab, function(database) {
+            console.log('Database connected!');
+        });
 
         
         //saved redir file
