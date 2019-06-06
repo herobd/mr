@@ -18,8 +18,6 @@ module.exports =  function() {
           if(!err) {
             //self.db=db;
             self.db=cl.db(dbname);
-            console.log("We are connected to the database.");
-            var numCol=1+5*dataNames.length;
 
             //Connect to all the collections
             self.db.collection('status2', function(err, collection) {
