@@ -14,15 +14,15 @@ module.exports =  function() {
         self.mongo = require('mongodb').MongoClient;
 
         // Connect to the db (localhost:27017/exampleDb)
-        self.mongo.connect("mongodb://"+address, function(err, db) {
+        self.mongo.connect("mongodb://"+address, function(err,cl) {
           if(!err) {
             //self.db=db;
-            self.db=self.mongo.db(dbname);
+            self.db=cl.db(dbname);
             console.log("We are connected to the database.");
             var numCol=1+5*dataNames.length;
 
             //Connect to all the collections
-            db.collection('status2', function(err, collection) {
+            self.db.collection('status2', function(err, collection) {
                 if(!err) {
                     self.statusCollection=collection;
                     callback(self);
