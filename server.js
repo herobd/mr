@@ -117,24 +117,28 @@ var SampleApp = function() {
         };
 
         self.routes['/'] = function(req, res) {
-            var tosort=[];
-            for (var name in self.sensei_status) {
-                tosort.push([self.sensei_status[name]['time'],name])
-            }
-            tosort.sort(function(a,b){return b[0]-a[0]});
-            var ordered_sensei_status=[];
-            for (p of tosort) {
-                clas = 'old';
-                if (p[0]>self.lastChecked){
-                    clas='new';
+            self.get_saved(function(item){
+                self.sensei_status=item; 
+                var tosort=[];
+                for (var name in self.sensei_status) {
+                    tosort.push([self.sensei_status[name]['time'],name])
                 }
-                ordered_sensei_status.push([ Date(p[0]), p[1], self.sensei_status[p[1]]['message'],clas])
-            }
-            //console.log(ordered_sensei_status)
-            res.render('sensei', {status:ordered_sensei_status});
-            //res.setHeader('Content-Type', 'text/html');
-            //res.send(self.cache_get('index.html') );
-            self.lastChecked = Date.now()
+                tosort.sort(function(a,b){return b[0]-a[0]});
+                var ordered_sensei_status=[];
+                for (p of tosort) {
+                    clas = 'old';
+                    if (p[0]>self.lastChecked){
+                        clas='new';
+                    }
+                    ordered_sensei_status.push([ Date(p[0]), p[1], self.sensei_status[p[1]]['message'],clas])
+                }
+                //console.log(ordered_sensei_status)
+                res.render('sensei', {status:ordered_sensei_status});
+                //res.setHeader('Content-Type', 'text/html');
+                //res.send(self.cache_get('index.html') );
+                self.lastChecked = Date.now();
+            });
+
         };
         self.routes['/projects'] = function(req, res) {
             res.setHeader('Content-Type', 'text/html');
@@ -212,6 +216,7 @@ var SampleApp = function() {
             var name=req.params.name;
             var message=req.query.message;
             self.sensei_status[name]={'message':message, 'time':Date.now()};
+            self.save(self.sensei_status,function(){})
             //res.redirect(url);
             res.setHeader('Content-Type', 'text/plain');
             res.send('ok');
