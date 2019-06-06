@@ -308,7 +308,7 @@ var SampleApp = function() {
 
                 db.collection('status', function(err, collection) {
                     if(!err) {
-                        collection.update({name:'status'},{$set:{name:'status',value:value}},{w:1,upsert:true}, funtion() {self.mongo_client.close(); callback()});
+                        collection.update({name:'status'},{$set:{name:'status',value:value}},{w:1,upsert:true}, function() {self.mongo_client.close(); callback()});
                     } else {
                         self.mongo_client.close();
                         console.log('Error collection ' + err)
