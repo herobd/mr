@@ -130,15 +130,16 @@ var SampleApp = function() {
                 //}
                 tosort.sort(function(a,b){return b['time']-a['time']});
                 var ordered_sensei_status=[];
-                var max = 15
+                var max = 15;
                 for (p of tosort) {
                     clas = 'old';
                     if (p['time']>self.lastChecked){
                         clas='new';
                     }
                     ordered_sensei_status.push([ new Date(p['time']), p['name'], p['message'],clas])
-                    if ordered_sensei_status.length > max && clas!='new':
+                    if (ordered_sensei_status.length > max && clas!='new') {
                         break
+                    }
                 }
                 //console.log(ordered_sensei_status)
                 res.render('sensei', {status:ordered_sensei_status});
