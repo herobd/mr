@@ -137,7 +137,7 @@ var SampleApp = function() {
                         clas='new';
                     }
                     ordered_sensei_status.push([ new Date(p['time']), p['name'], p['message'],clas])
-                    if ordered_sensei_status.length > max:
+                    if ordered_sensei_status.length > max && clas!='new':
                         break
                 }
                 //console.log(ordered_sensei_status)
