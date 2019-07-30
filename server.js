@@ -130,7 +130,7 @@ var SampleApp = function() {
                 //}
                 tosort.sort(function(a,b){return b['time']-a['time']});
                 var ordered_sensei_status=[];
-                var max = 15;
+                var max = 20;
                 for (p of tosort) {
                     clas = 'old';
                     if (p['time']>self.lastChecked){
