@@ -400,7 +400,7 @@ var SampleApp = function() {
         self.setupVariables();
         self.populateCache();
         self.setupTerminationHandlers();
-        self.liahonaCount=1
+        self.liahonaCount=0
 
         //self.mongo_client = new MongoClient(mongolab);
         //self.get_saved(function(item){self.sensei_status=item;});
