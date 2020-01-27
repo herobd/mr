@@ -11,7 +11,7 @@ var Database = require('./database')();
 var mongolab = 'heroku_vhwr6c7j:qbm5rn0ibpqkjamponccqpatil@ds233167.mlab.com:33167/heroku_vhwr6c7j'
 var dbname = 'heroku_vhwr6c7j'
 
-var TOTAL_LIAHONA = 3
+var TOTAL_LIAHONA = 6
 //console.log(process.env)
 /**
  *  Define the sample application.
@@ -57,7 +57,7 @@ var SampleApp = function() {
         //  Local cache for static content.
         self.zcache['index.html'] = fs.readFileSync('./index.html');
         self.zcache['projects.html'] = fs.readFileSync('./projects.html');
-        for (let i=1; i<=TOTAL_LIAHONA; i++) {
+        for (let i=0; i<TOTAL_LIAHONA; i++) {
             self.zcache['liahona'+i+'.html'] = fs.readFileSync('./liahona/'+i+'.html');
         }
         
