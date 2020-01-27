@@ -58,7 +58,7 @@ var SampleApp = function() {
         self.zcache['index.html'] = fs.readFileSync('./index.html');
         self.zcache['projects.html'] = fs.readFileSync('./projects.html');
         for (let i=1; i<=TOTAL_LIAHONA; i++) {
-            self.zcache['liahona'+i+'.html'] = fs.readFileSync('./liahona'+i+'.html');
+            self.zcache['liahona'+i+'.html'] = fs.readFileSync('./liahona/'+i+'.html');
         }
         
         //self.zcache['game/assests/Monster Growl-SoundBible.com-344645592.mp3'] = fs.readFileSync('./public/game/assests/Monster Growl-SoundBible.com-344645592.mp3');
