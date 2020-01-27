@@ -55,6 +55,9 @@ var SampleApp = function() {
         //  Local cache for static content.
         self.zcache['index.html'] = fs.readFileSync('./index.html');
         self.zcache['projects.html'] = fs.readFileSync('./projects.html');
+        for (let i=0; i<5; i++) {
+            self.zcache['liahona'+i+'.html'] = fs.readFileSync('./liahona'+i+'.html');
+        }
         
         //self.zcache['game/assests/Monster Growl-SoundBible.com-344645592.mp3'] = fs.readFileSync('./public/game/assests/Monster Growl-SoundBible.com-344645592.mp3');
         //self.zcache['game/assests/Zombie Moan-SoundBible.com-565291980.wav#t=0.1']=fs.readFileSync('./public/game/assests/Zombie Moan-SoundBible.com-565291980.wav#t=0.1');
@@ -153,6 +156,16 @@ var SampleApp = function() {
             res.setHeader('Content-Type', 'text/html');
             res.send(self.cache_get('projects.html') );
         };
+        self.routes['/liahona'] = function(req, res) {
+            res.setHeader('Content-Type', 'text/html');
+            res.send(self.cache_get('liahona'+self.liahonaCount+'.html') );
+        };
+        self.routes['/liahona-step'] = function(req, res) {
+            res.setHeader('Content-Type', 'text/plain');
+            res.setHeader('Cache-Control', 'no-cache');
+            self.liahonaCount+=1;
+            res.send('counter set to: '+self.liahonaCount);
+        };
         self.routes['/resume'] = function(req, res) {
             res.redirect('https://docs.google.com/document/d/1-4Wi_Y18SXbd5_utuRe-aexs75DaCvOZ1svzULopqiE/edit?usp=sharing');
         };
@@ -232,6 +245,17 @@ var SampleApp = function() {
             //self.save(self.sensei_status)
             s = {'name':name, 'message':message, 'time':Date.now()};
             self.database.updateStatus(s,function(err){
+                console.log(s)
+                if (err) {
+                    self.warn += '['+name+', '+message + ']: '+err+'\n';
+                    console.log(err)
+                }
+            });
+        };
+        self.routes['/sensei-clear'] = function(req, res) {
+            res.setHeader('Content-Type', 'text/plain');
+            res.send('ok');
+            self.database.clearStatus(s,function(err){
                 console.log(s)
                 if (err) {
                     self.warn += '['+name+', '+message + ']: '+err+'\n';
@@ -374,6 +398,7 @@ var SampleApp = function() {
         self.setupVariables();
         self.populateCache();
         self.setupTerminationHandlers();
+        self.liahonaCount=0
 
         //self.mongo_client = new MongoClient(mongolab);
         //self.get_saved(function(item){self.sensei_status=item;});

@@ -39,6 +39,9 @@ module.exports =  function() {
     Database.prototype.updateStatus = function (statusInfo,callback)  {
         this.statusCollection.update({name:statusInfo.name},statusInfo, {upsert:1, w:1}, callback);
     }
+    Database.prototype.clearStatus = function (callback)  {
+        this.statusCollection.remove({})
+    }
     Database.prototype.findStatus = function (name,callback) {
         var self=this;
         self.statusCollection.findOne({name:name}, function(err, item) {
