@@ -11,7 +11,7 @@ var Database = require('./database')();
 var mongolab = 'heroku_vhwr6c7j:qbm5rn0ibpqkjamponccqpatil@ds233167.mlab.com:33167/heroku_vhwr6c7j'
 var dbname = 'heroku_vhwr6c7j'
 
-var TOTAL_LIAHONA = 6
+var TOTAL_LIAHONA = 7
 //console.log(process.env)
 /**
  *  Define the sample application.
