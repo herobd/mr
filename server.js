@@ -165,7 +165,13 @@ var SampleApp = function() {
         self.routes['/liahona-step'] = function(req, res) {
             res.setHeader('Content-Type', 'text/plain');
             res.setHeader('Cache-Control', 'no-cache');
-            self.liahonaCount=(self.liahonaCount+1)%TOTAL_LIAHONA;
+            self.liahonaCount=Math.min(self.liahonaCount+1,TOTAL_LIAHONA-1)
+            res.send('counter set to: '+self.liahonaCount);
+        };
+        self.routes['/liahona-reset'] = function(req, res) {
+            res.setHeader('Content-Type', 'text/plain');
+            res.setHeader('Cache-Control', 'no-cache');
+            self.liahonaCount=0;
             res.send('counter set to: '+self.liahonaCount);
         };
         self.routes['/resume'] = function(req, res) {
@@ -205,6 +211,11 @@ var SampleApp = function() {
                      toSend += '<br>'+source+': '+self.sourceCounter[source];
                  }
              }
+             res.send(toSend);
+        }
+
+        self.routes['/liahonaIndex'] = function(req,res) {
+             toSend = self.liahonaCount;
              res.send(toSend);
         }
         
