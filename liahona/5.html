@@ -6,10 +6,29 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="im.css" rel="stylesheet" type="text/css" />
 <script type="text/javascript">
-        function codeAddress() {
-setTimeout("location.reload(true);",2500);
+init_value = -1;
+theUrl = 'liahonaIndex';
+function check() {
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.onreadystatechange = function() { 
+        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+            check2(xmlHttp.responseText);
+    }
+    xmlHttp.open("GET", theUrl, true); // true for asynchronous 
+    xmlHttp.send(null);
+}
+function check2(value) {
+    if (init_value==-1) {
+        init_value=value
+        setTimeout(check,2000)
+    } else {
+        if (value!=init_value) {
+            location.reload(true);
+        } else {
+            setTimeout(check,2000)
         }
-        window.onload = codeAddress;
+    }
+}
 </script>
 </head>
 <body>

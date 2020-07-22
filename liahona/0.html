@@ -6,8 +6,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="im.css" rel="stylesheet" type="text/css" />
 <script type="text/javascript">
-init_value = -1
-theURL = 'liahonaIndex'
+init_value = -1;
+theUrl = 'liahonaIndex';
 function check() {
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.onreadystatechange = function() { 
@@ -18,9 +18,9 @@ function check() {
     xmlHttp.send(null);
 }
 function check2(value) {
-    console.log('got value: '+value)
     if (init_value==-1) {
         init_value=value
+        setTimeout(check,2000)
     } else {
         if (value!=init_value) {
             location.reload(true);
@@ -29,7 +29,6 @@ function check2(value) {
         }
     }
 }
-//setTimeout("location.reload(true);",2500);
 window.onload = check;
 </script>
 </head>
