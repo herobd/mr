@@ -17,6 +17,7 @@ function check() {
     xmlHttp.send(null);
 }
 function check2(value) {
+    console.log('got value: '+value)
     if (init_value==-1) {
         init_value=value
     } else {
@@ -26,8 +27,9 @@ function check2(value) {
             setTimeout(check,2000)
         }
     }
+}
 //setTimeout("location.reload(true);",2500);
-    window.onload = check;
+window.onload = check;
 </script>
 </head>
 <body>
