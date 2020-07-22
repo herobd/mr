@@ -215,7 +215,7 @@ var SampleApp = function() {
         }
 
         self.routes['/liahonaIndex'] = function(req,res) {
-             toSend = self.liahonaCount;
+             toSend = ''+self.liahonaCount;
              res.send(toSend);
         }
         
