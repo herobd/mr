@@ -8,7 +8,7 @@ var senseiFile =  process.env.HOME +'/sensei.json';
 var sourceCounterFile =  process.env.HOME +'/sourceCounter.json';
 
 var Database = require('./database')();
-var mongolab = 'heroku_vhwr6c7j:qbm5rn0ibpqkjamponccqpatil@ds233167.mlab.com:33167/heroku_vhwr6c7j'
+var mongolab = process.env.MONGODB_URI
 var dbname = 'heroku_vhwr6c7j'
 
 var TOTAL_LIAHONA = 7

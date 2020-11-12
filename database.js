@@ -14,7 +14,7 @@ module.exports =  function() {
         self.mongo = require('mongodb').MongoClient;
 
         // Connect to the db (localhost:27017/exampleDb)
-        self.mongo.connect("mongodb://"+address, function(err,cl) {
+        self.mongo.connect(address, function(err,cl) {
           if(!err) {
             //self.db=db;
             self.db=cl.db(dbname);
